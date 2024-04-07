@@ -1,0 +1,80 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+group = 'com.ericyl'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            // 从 java 组件中自动捕获项目的artifact
+            from components.java
+
+            // 可选：配置pom文件的生成，增加项目描述和开发者信息等
+            pom {
+                name = 'Excel Plus'
+                description = 'Excel Plus'
+                url = 'https://www.ericyl.com/excel-plus'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'ericyl'
+                        name = 'Ericyl Studio'
+                        email = 'ericyl@ericyl.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/ericyl-studio/excel-plus.git'
+                    developerConnection = 'scm:git:ssh://github.com/ericyl-studio/excel-plus.git'
+                    url = 'http://github.com/ericyl-studio/excel-plus'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/ericyl-studio/excel-plus"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation("org.projectlombok:lombok:${lombokVersion}")
+    annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+    implementation("org.apache.commons:commons-lang3:${lang3Version}")
+    implementation("commons-collections:commons-collections:${collectionsVersion}")
+    implementation("org.apache.poi:poi:${poiVersion}")
+    implementation("org.apache.poi:poi-ooxml:${poiVersion}")
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
+
