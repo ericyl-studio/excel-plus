@@ -3,8 +3,8 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'com.ericyl'
-version = '1.0-SNAPSHOT'
+group = 'com.ericyl.excel'
+version = '0.1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
