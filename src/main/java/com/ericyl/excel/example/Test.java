@@ -43,11 +43,13 @@ public class Test {
 
     }
 
+    //单类读取
     private static void read1(Sheet sheet) {
         Reader1 reader1 = ExcelReaderUtils.doIt(sheet, Reader1.class);
         System.out.println(reader1);
     }
 
+    //下标读取列表
     private static void read2(Sheet sheet) {
         List<Reader2> reader2List = ExcelReaderUtils.doList(sheet, Reader2.class, new IExcelReaderListener() {
             @Override
@@ -77,6 +79,7 @@ public class Test {
         reader2List.forEach(System.out::println);
     }
 
+    //表头读取列表
     private static void read3(Sheet sheet) {
         List<Reader3> reader3List = ExcelReaderUtils.doList(sheet, Reader3.class, new IExcelReaderListener() {
 
@@ -93,17 +96,20 @@ public class Test {
         reader3List.forEach(System.out::println);
     }
 
+    //列表生成
     private static void write1() {
         List<Writer1> writer1List = IntStream.range(0, 10).mapToObj(index -> new Writer1("name_" + index, 10.0 + index, new Date())).collect(Collectors.toList());
         ExcelWriterUtils.list2Excel(writer1List, Writer1.class);
     }
 
+    //分页生成
     private static void write2() {
         ExcelWriterUtils.list2Excel(5, 10, Writer1.class,
                 (pageNumber, pageSize) -> IntStream.range(0, pageSize).mapToObj(index -> new Writer1("name_" + pageNumber + "_" + index, 10.0 + index)).collect(Collectors.toList())
         );
     }
 
+    //复杂表结构生成
     private static void write3() {
         List<List<ExcelColumn>> headerList = new ArrayList<List<ExcelColumn>>() {{
             add(new ArrayList<ExcelColumn>() {{
@@ -134,6 +140,7 @@ public class Test {
             }});
 
         }};
+        //可通过 List.stream 进行转换
         List<List<ExcelColumn>> bodyList = new ArrayList<List<ExcelColumn>>() {{
             add(new ArrayList<ExcelColumn>() {{
                 add(new ExcelColumn("科目代码1", "kmdm", 3, 1, "start"));

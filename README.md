@@ -7,7 +7,7 @@
     * 通过 Excel 单元格坐标读取数据 `@ExcelReader(value = 'A5')`
   * 列表读取
     * 通过 Excel 下标 `@ExcelReader(index = 0)`
-    * 【支持多表头】通过 Excel 表头读取列表 `@ExcelReader(name = {'表头1','表头2'})`
+    * 【支持多表头】通过 Excel 表头 `@ExcelReader(name = {'表头1','表头2'})`
     
 * Excel 生成
   * 【支持分页】简单列表可通过配置 `@ExcelWriter(name = '名称')` 生成 Excel
