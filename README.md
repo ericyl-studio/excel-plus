@@ -42,7 +42,7 @@
 2. 配置依赖
    ```
    dependencies {
-    implementation('com.ericyl.excel:excel-plus:0.1.0-SNAPSHOT')
+    implementation('com.ericyl.excel:excel-plus:0.1.1-SNAPSHOT')
     implementation("org.projectlombok:lombok:${lombokVersion}")
     annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
     implementation("org.apache.commons:commons-lang3:${lang3Version}")
