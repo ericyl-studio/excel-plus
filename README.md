@@ -46,7 +46,7 @@
     implementation("org.projectlombok:lombok:${lombokVersion}")
     annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
     implementation("org.apache.commons:commons-lang3:${lang3Version}")
-    implementation("commons-collections:commons-collections:${collectionsVersion}")
+    implementation("org.apache.commons:commons-collections4:${collectionsVersion}")
     implementation("org.apache.poi:poi:${poiVersion}")
     implementation("org.apache.poi:poi-ooxml:${poiVersion}")
    }

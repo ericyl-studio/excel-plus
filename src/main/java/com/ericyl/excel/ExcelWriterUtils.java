@@ -6,7 +6,7 @@ import com.ericyl.excel.writer.formatter.DefaultExcelWriterFormatter;
 import com.ericyl.excel.writer.formatter.IExcelWriterFormatter;
 import com.ericyl.excel.writer.model.ExcelColumn;
 import com.ericyl.excel.writer.model.ExcelTable;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
