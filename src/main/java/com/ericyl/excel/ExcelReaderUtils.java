@@ -204,7 +204,7 @@ public class ExcelReaderUtils {
         }).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
-    private static Object getValue(Class<?> clazz, Cell cell, IExcelReaderFormatter<?> formatter) {
+    public static Object getValue(Class<?> clazz, Cell cell, IExcelReaderFormatter<?> formatter) {
         if (cell == null)
             return null;
         if (formatter != null)
