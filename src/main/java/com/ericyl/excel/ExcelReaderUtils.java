@@ -19,6 +19,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,8 +33,8 @@ public class ExcelReaderUtils {
             throw new RuntimeException("表格数据不能为空");
         T obj;
         try {
-            obj = clazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            obj = clazz.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -45,9 +46,7 @@ public class ExcelReaderUtils {
             List<FieldCell> rowFieldCellList = fieldCellList.stream().filter(fieldCell -> Objects.equals(fieldCell.getRowIndex(), rowIndex + 1)).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(rowFieldCellList)) {
 
-                IntStream.range(0, row.getLastCellNum()).forEach(cellIndex -> {
-                    rowFieldCellList.stream().filter(it -> Objects.equals(it.getCellIndex(), cellIndex + 1)).findFirst().ifPresent(fieldCell -> ObjectUtils.setField(obj, fieldCell.getField(), getValue(fieldCell.getField().getType(), row.getCell(cellIndex), fieldCell.getFormatter())));
-                });
+                IntStream.range(0, row.getLastCellNum()).forEach(cellIndex -> rowFieldCellList.stream().filter(it -> Objects.equals(it.getCellIndex(), cellIndex + 1)).findFirst().ifPresent(fieldCell -> ObjectUtils.setField(obj, fieldCell.getField(), getValue(fieldCell.getField().getType(), row.getCell(cellIndex), fieldCell.getFormatter()))));
             }
         });
 
@@ -72,8 +71,8 @@ public class ExcelReaderUtils {
                 return null;
             T obj;
             try {
-                obj = clazz.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
+                obj = clazz.getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
 
@@ -102,7 +101,7 @@ public class ExcelReaderUtils {
             ExcelReader annotation = field.getAnnotation(ExcelReader.class);
             if (annotation.formatter() != DefaultExcelReaderFormatter.class)
                 try {
-                    fieldCell.setFormatter(annotation.formatter().newInstance());
+                    fieldCell.setFormatter(annotation.formatter().getDeclaredConstructor().newInstance());
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -213,7 +212,15 @@ public class ExcelReaderUtils {
             return cell.getStringCellValue();
         if (Number.class.isAssignableFrom(clazz)) {
             try {
-                return cell.getNumericCellValue();
+                BigDecimal cellValue = BigDecimal.valueOf(cell.getNumericCellValue());
+                if (clazz.equals(Integer.class))
+                    return cellValue.intValue();
+                if (clazz.equals(Double.class))
+                    return cellValue.doubleValue();
+                if (clazz.equals(Float.class))
+                    return cellValue.floatValue();
+                if (clazz.equals(Long.class))
+                    return cellValue.longValue();
             } catch (IllegalStateException e) {
                 if (!Objects.equals(CellType.STRING, cell.getCellType()))
                     throw e;
@@ -241,27 +248,13 @@ public class ExcelReaderUtils {
     public static Object getCellValue(Cell cell) {
         if (cell == null)
             return null;
-        Object obj;
-        switch (cell.getCellType()) {
-            case STRING:
-                obj = cell.getStringCellValue();
-                break;
-            case NUMERIC:
-                obj = cell.getNumericCellValue();
-                break;
-            case BOOLEAN:
-                obj = cell.getBooleanCellValue();
-                break;
-            case _NONE:
-            case FORMULA:
-            case BLANK:
-            case ERROR:
-            default:
-                obj = null;
-                break;
-        }
 
-        return obj;
+        return switch (cell.getCellType()) {
+            case STRING -> cell.getStringCellValue();
+            case NUMERIC -> cell.getNumericCellValue();
+            case BOOLEAN -> cell.getBooleanCellValue();
+            default -> null;
+        };
     }
 
 
