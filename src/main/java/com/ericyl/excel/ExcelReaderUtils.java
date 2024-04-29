@@ -212,7 +212,10 @@ public class ExcelReaderUtils {
             return cell.getStringCellValue();
         if (Number.class.isAssignableFrom(clazz)) {
             try {
-                BigDecimal cellValue = BigDecimal.valueOf(cell.getNumericCellValue());
+                double value = cell.getNumericCellValue();
+                if((clazz.equals(Integer.class) || clazz.equals(Long.class)) &&  (String.valueOf(value).matches(".*\\.\\d*[1-9]+\\d*$")))
+                    throw new RuntimeException("当前数据是浮点类型");
+                BigDecimal cellValue = BigDecimal.valueOf(value);
                 if (clazz.equals(Integer.class))
                     return cellValue.intValue();
                 if (clazz.equals(Double.class))
@@ -249,12 +252,27 @@ public class ExcelReaderUtils {
         if (cell == null)
             return null;
 
-        return switch (cell.getCellType()) {
-            case STRING -> cell.getStringCellValue();
-            case NUMERIC -> cell.getNumericCellValue();
-            case BOOLEAN -> cell.getBooleanCellValue();
-            default -> null;
-        };
+        Object obj;
+        switch (cell.getCellType()) {
+            case STRING:
+                obj = cell.getStringCellValue();
+                break;
+            case NUMERIC:
+                obj = cell.getNumericCellValue();
+                break;
+            case BOOLEAN:
+                obj = cell.getBooleanCellValue();
+                break;
+            case _NONE:
+            case FORMULA:
+            case BLANK:
+            case ERROR:
+            default:
+                obj = null;
+                break;
+        }
+
+        return obj;
     }
 
 
