@@ -208,12 +208,14 @@ public class ExcelReaderUtils {
             return null;
         if (formatter != null)
             return formatter.format(cell);
-        if (clazz.equals(String.class))
-            return cell.getStringCellValue();
+        if (clazz.equals(String.class)) {
+            Object object = getCellValue(cell);
+            return object == null ? null : object.toString();
+        }
         if (Number.class.isAssignableFrom(clazz)) {
             try {
                 double value = cell.getNumericCellValue();
-                if((clazz.equals(Integer.class) || clazz.equals(Long.class)) &&  (String.valueOf(value).matches(".*\\.\\d*[1-9]+\\d*$")))
+                if ((clazz.equals(Integer.class) || clazz.equals(Long.class)) && (String.valueOf(value).matches(".*\\.\\d*[1-9]+\\d*$")))
                     throw new RuntimeException("当前数据是浮点类型");
                 BigDecimal cellValue = BigDecimal.valueOf(value);
                 if (clazz.equals(Integer.class))
