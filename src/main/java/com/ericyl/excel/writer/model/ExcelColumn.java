@@ -8,7 +8,8 @@ import java.util.Objects;
 public class ExcelColumn implements Comparable<ExcelColumn> {
     private String key;
     private Object data;
-    private Integer index;
+    private Integer rowIndex;
+    private Integer cellIndex;
     private int colspan;
     private int rowspan;
     private Integer width;
@@ -66,6 +67,6 @@ public class ExcelColumn implements Comparable<ExcelColumn> {
 
     @Override
     public int compareTo(ExcelColumn o) {
-        return Objects.compare(getIndex(), o.getIndex(), Integer::compareTo);
+        return Objects.compare(getCellIndex(), o.getCellIndex(), Integer::compareTo);
     }
 }

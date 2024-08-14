@@ -12,6 +12,12 @@ import java.lang.annotation.*;
 public @interface ExcelWriter {
 
     /**
+     * 单元格坐标
+     * 例如: "A1", "B1"
+     */
+    String value() default "";
+
+    /**
      * 名称
      */
     String name() default "";

@@ -37,6 +37,7 @@ public class Test {
             e.printStackTrace();
         }
         //Writer
+        writeObj();
         write1();
         write2();
         write3();
@@ -94,6 +95,24 @@ public class Test {
             }
         });
         reader3List.forEach(System.out::println);
+    }
+
+
+    //数据写入
+    private static void writeObj() {
+        try (InputStream inputStream = Files.newInputStream(new File("./demo.xlsx").toPath())) {
+            Workbook workbook = WorkbookFactory.create(inputStream);
+            Iterable<Sheet> sheetIterable = workbook::sheetIterator;
+            StreamSupport.stream(sheetIterable.spliterator(), false).forEach(sheet -> {
+                if (Objects.equals("Sheet1", sheet.getSheetName())) {
+                    WriterObj writerObj = new WriterObj("name_", 10.0, new Date());
+                    ExcelWriterUtils.obj2Excel(workbook, sheet, writerObj);
+                }
+            });
+            ExcelWriterUtils.toFile(workbook);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     //列表生成

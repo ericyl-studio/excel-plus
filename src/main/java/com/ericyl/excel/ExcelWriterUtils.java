@@ -1,5 +1,6 @@
 package com.ericyl.excel;
 
+import com.ericyl.excel.util.ObjectUtils;
 import com.ericyl.excel.writer.IExcelWriterListener;
 import com.ericyl.excel.writer.annotation.ExcelWriter;
 import com.ericyl.excel.writer.formatter.DefaultExcelWriterFormatter;
@@ -19,28 +20,50 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 //导出 excel
 public class ExcelWriterUtils {
 
+    public static <T> void obj2Excel(Workbook workbook, Sheet sheet, T obj) {
+        if (sheet == null)
+            throw new RuntimeException("表格数据不能为空");
+
+        List<ExcelColumn> excelColumnList = getExcelColumns(obj.getClass(), obj);
+
+        excelColumnList.forEach(excelColumn -> {
+            Row row = sheet.getRow(excelColumn.getRowIndex());
+            if (row == null)
+                row = sheet.createRow(excelColumn.getRowIndex());
+            Cell cell = row.getCell(excelColumn.getCellIndex());
+            if (cell == null)
+                cell = row.createCell(excelColumn.getCellIndex());
+            setCellValue(workbook, cell, excelColumn);
+        });
+
+    }
+
     public static <T> String list2Excel(List<T> list, Class<T> clazz) {
         if (CollectionUtils.isEmpty(list)) throw new RuntimeException("未查询到需导出的数据");
-
 
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("sheet1");
         // 表头
         Row title = sheet.createRow(0);
-        List<ExcelColumn> titleExcelColumnList = getHeaderExcelColumns(clazz);
+        List<ExcelColumn> titleExcelColumnList = getExcelColumns(clazz, null);
         IntStream.range(0, titleExcelColumnList.size()).forEach(index -> {
             ExcelColumn excelColumn = titleExcelColumnList.get(index);
             setCellWidth(sheet, index, excelColumn.getWidth());
             Cell cell = title.createCell(index);
-            if (excelColumn.getData() != null) cell.setCellValue(excelColumn.getData().toString());
-            else cell.setCellValue(excelColumn.getKey());
-            setCellStyle(workbook, cell, excelColumn);
+            if (excelColumn.getData() == null) {
+                cell.setCellValue(excelColumn.getKey());
+                setCellStyle(workbook, cell, excelColumn);
+            } else
+                setCellValue(workbook, cell, excelColumn);
+
         });
 
         //内容
@@ -70,14 +93,16 @@ public class ExcelWriterUtils {
 
         // 表头
         Row title = sheet.createRow(0);
-        List<ExcelColumn> titleExcelColumnList = getHeaderExcelColumns(clazz);
+        List<ExcelColumn> titleExcelColumnList = getExcelColumns(clazz, null);
         IntStream.range(0, titleExcelColumnList.size()).forEach(index -> {
             ExcelColumn excelColumn = titleExcelColumnList.get(index);
             setCellWidth(sheet, index, excelColumn.getWidth());
             Cell cell = title.createCell(index);
-            if (excelColumn.getData() != null) cell.setCellValue(excelColumn.getData().toString());
-            else cell.setCellValue(excelColumn.getKey());
-            setCellStyle(workbook, cell, excelColumn);
+            if (excelColumn.getData() == null) {
+                cell.setCellValue(excelColumn.getKey());
+                setCellStyle(workbook, cell, excelColumn);
+            } else
+                setCellValue(workbook, cell, excelColumn);
         });
 
         IntStream.range(1, page + 1).forEach(pageNumber -> {
@@ -147,28 +172,42 @@ public class ExcelWriterUtils {
         Field[] fields = clazz.getDeclaredFields();
         return Arrays.stream(fields).map(field -> {
             ExcelColumn excelColumn = new ExcelColumn(field.getName());
-            Object data = null;
-            if (obj != null) {
-                field.setAccessible(true);
-                try {
-                    data = field.get(obj);
-                } catch (IllegalAccessException ignored) {
-                }
-            }
-            if (data != null)
-                excelColumn.setData(data);
             if (!field.isAnnotationPresent(ExcelWriter.class)) return excelColumn;
             ExcelWriter annotation = field.getAnnotation(ExcelWriter.class);
-            if (data != null && annotation.formatter() != DefaultExcelWriterFormatter.class)
-                try {
-//                    excelColumn.setFormatter(annotation.formatter().newInstance());
-                    IExcelWriterFormatter writerFormatter = annotation.formatter().newInstance();
-                    excelColumn.setData(writerFormatter.format(data));
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+            if (obj == null) {
+                //表头
+                String cellName = annotation.name();
+                if (StringUtils.isNotEmpty(cellName))
+                    excelColumn.setData(cellName);
+            } else {
+                //内容
+                Object data = ObjectUtils.getField(obj, field);
+                if (data != null && annotation.formatter() != DefaultExcelWriterFormatter.class) {
+                    try {
+                        IExcelWriterFormatter writerFormatter = annotation.formatter().newInstance();
+                        excelColumn.setData(writerFormatter.format(data));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    excelColumn.setData(data);
                 }
+            }
+
+            String cellValue = annotation.value();
             int cellIndex = annotation.index();
-            if (cellIndex != -1) excelColumn.setIndex(cellIndex);
+            if (StringUtils.isNotEmpty(cellValue)) {
+                //判断坐标
+                Matcher matcher = Pattern.compile("(\\D+)(\\d+)").matcher(cellValue);
+                if (matcher.find()) {
+                    String[] parts = {matcher.group(1), matcher.group(2)};
+                    excelColumn.setRowIndex(Integer.parseInt(parts[1]) - 1);
+                    excelColumn.setCellIndex(ObjectUtils.convertToNumber(parts[0]) - 1);
+                }
+
+            } else if (cellIndex != -1) {
+                excelColumn.setCellIndex(cellIndex);
+            }
             int cellWidth = annotation.width();
             if (cellWidth != -1) excelColumn.setWidth(cellWidth);
             short cellHeight = annotation.height();
@@ -179,26 +218,26 @@ public class ExcelWriterUtils {
         }).sorted().collect(Collectors.toList());
     }
 
-    private static List<ExcelColumn> getHeaderExcelColumns(Class<?> clazz) {
-        Field[] fields = clazz.getDeclaredFields();
-        return Arrays.stream(fields).map(field -> {
-            ExcelColumn excelColumn = new ExcelColumn(field.getName());
-            if (!field.isAnnotationPresent(ExcelWriter.class)) return excelColumn;
-            ExcelWriter annotation = field.getAnnotation(ExcelWriter.class);
-            String cellName = annotation.name();
-            if (StringUtils.isNotEmpty(cellName))
-                excelColumn.setData(cellName);
-            int cellIndex = annotation.index();
-            if (cellIndex != -1) excelColumn.setIndex(cellIndex);
-            int cellWidth = annotation.width();
-            if (cellWidth != -1) excelColumn.setWidth(cellWidth);
-            short cellHeight = annotation.height();
-            if (cellHeight != -1) excelColumn.setHeight(cellHeight);
-            String cellAlign = annotation.align();
-            if (StringUtils.isNotEmpty(cellAlign)) excelColumn.setAlign(cellAlign);
-            return excelColumn;
-        }).sorted().collect(Collectors.toList());
-    }
+//    private static List<ExcelColumn> getHeaderExcelColumns(Class<?> clazz) {
+//        Field[] fields = clazz.getDeclaredFields();
+//        return Arrays.stream(fields).map(field -> {
+//            ExcelColumn excelColumn = new ExcelColumn(field.getName());
+//            if (!field.isAnnotationPresent(ExcelWriter.class)) return excelColumn;
+//            ExcelWriter annotation = field.getAnnotation(ExcelWriter.class);
+//            String cellName = annotation.name();
+//            if (StringUtils.isNotEmpty(cellName))
+//                excelColumn.setData(cellName);
+//            int cellIndex = annotation.index();
+//            if (cellIndex != -1) excelColumn.setCellIndex(cellIndex);
+//            int cellWidth = annotation.width();
+//            if (cellWidth != -1) excelColumn.setWidth(cellWidth);
+//            short cellHeight = annotation.height();
+//            if (cellHeight != -1) excelColumn.setHeight(cellHeight);
+//            String cellAlign = annotation.align();
+//            if (StringUtils.isNotEmpty(cellAlign)) excelColumn.setAlign(cellAlign);
+//            return excelColumn;
+//        }).sorted().collect(Collectors.toList());
+//    }
 
     private static void setCellValue(Workbook workbook, Cell cell, ExcelColumn excelColumn) {
         if (excelColumn == null) return;
@@ -249,7 +288,7 @@ public class ExcelWriterUtils {
         row.setHeight(height);
     }
 
-    private static String toFile(Workbook workbook) {
+    public static String toFile(Workbook workbook) {
         String file = String.format("%s_%d.xlsx", UUID.randomUUID(), System.currentTimeMillis());
 
         try (OutputStream out = getOutputStream("excel" + File.separator + file)) {

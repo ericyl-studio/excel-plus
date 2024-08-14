@@ -11,6 +11,7 @@ public class ObjectUtils {
 
     /**
      * 列坐标 -> 下标
+     *
      * @param s
      * @return
      */
@@ -25,14 +26,17 @@ public class ObjectUtils {
 
     /**
      * 反射方式写入数据
+     *
      * @param obj
      * @param field
      * @param value
      * @param <T>
      */
     public static <T> void setField(T obj, Field field, Object value) {
-        field.setAccessible(true);
+        if (value == null)
+            return;
         try {
+            field.setAccessible(true);
             field.set(obj, value);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -42,6 +46,16 @@ public class ObjectUtils {
     /**
      * 反射获取数据
      */
+    public static Object getField(Object obj, Field field) {
+        if (obj == null)
+            return null;
+        try {
+            field.setAccessible(true);
+            return field.get(obj);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * 判断数据不为空
