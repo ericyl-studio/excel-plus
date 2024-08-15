@@ -3,6 +3,8 @@ package com.ericyl.excel.writer.annotation;
 
 import com.ericyl.excel.writer.formatter.DefaultExcelWriterFormatter;
 import com.ericyl.excel.writer.formatter.IExcelWriterFormatter;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 
 import java.lang.annotation.*;
 
@@ -41,12 +43,18 @@ public @interface ExcelWriter {
     /**
      * 对齐方式
      */
-    String align() default "start";
+    VerticalAlignment verticalAlignment() default VerticalAlignment.CENTER;
+
+    /**
+     * 对齐方式
+     */
+    HorizontalAlignment horizontalAlignment() default HorizontalAlignment.LEFT;
 
     /**
      * 数据类型转换器
      */
     Class<? extends IExcelWriterFormatter> formatter() default DefaultExcelWriterFormatter.class;
 
+    ExcelWriterBorder border() default @ExcelWriterBorder;
 }
 

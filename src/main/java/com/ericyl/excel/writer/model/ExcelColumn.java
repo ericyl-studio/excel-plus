@@ -1,6 +1,8 @@
 package com.ericyl.excel.writer.model;
 
 import lombok.Data;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 
 import java.util.Objects;
 
@@ -14,56 +16,40 @@ public class ExcelColumn implements Comparable<ExcelColumn> {
     private int rowspan;
     private Integer width;
     private Short height;
-    private String align;
-//    private IExcelWriterFormatter formatter;
+    private VerticalAlignment verticalAlignment;
+    private HorizontalAlignment horizontalAlignment;
+    private ExcelColumnBorder border;
 
     public ExcelColumn(String key) {
-        this(null, key, 1, 1, "start");
+        this(null, key, 1, 1);
     }
 
     public ExcelColumn(Object data, String key) {
-        this(data, key, 1, 1, "start");
+        this(data, key, 1, 1);
     }
 
-    public ExcelColumn(Object data, String key, int colspan, int rowspan, String align) {
+    public ExcelColumn(Object data, String key, int colspan, int rowspan) {
         this.data = data;
         this.colspan = colspan;
         this.rowspan = rowspan;
-        this.align = align;
+        this.verticalAlignment = VerticalAlignment.CENTER;
         this.key = key;
     }
 
-//    public ExcelColumn<T> withName(String name) {
-//        this.name = name;
-//        return this;
-//    }
-//
-//    public ExcelColumn<T> withColspan(int colspan) {
-//        this.colspan = colspan;
-//        return this;
-//    }
-//
-//
-//    public ExcelColumn<T> withRowspan(int rowspan) {
-//        this.rowspan = rowspan;
-//        return this;
-//    }
-//
-//    public ExcelColumn<T> withAlign(String align) {
-//        this.align = align;
-//        return this;
-//    }
-//
-//
-//    public ExcelColumn<T> withWidth(int width) {
-//        this.width = width;
-//        return this;
-//    }
-//
-//    public ExcelColumn<T> withHeight(int height) {
-//        this.height = height;
-//        return this;
-//    }
+    public ExcelColumn withHorizontalAlignment(HorizontalAlignment alignment) {
+        this.horizontalAlignment = alignment;
+        return this;
+    }
+
+    public ExcelColumn withVerticalAlignment(VerticalAlignment alignment) {
+        this.verticalAlignment = alignment;
+        return this;
+    }
+
+    public ExcelColumn withBorder(ExcelColumnBorder border) {
+        this.border = border;
+        return this;
+    }
 
     @Override
     public int compareTo(ExcelColumn o) {

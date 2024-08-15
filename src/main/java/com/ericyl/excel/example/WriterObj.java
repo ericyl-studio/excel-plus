@@ -1,9 +1,12 @@
 package com.ericyl.excel.example;
 
 import com.ericyl.excel.writer.annotation.ExcelWriter;
+import com.ericyl.excel.writer.annotation.ExcelWriterBorder;
+import com.ericyl.excel.writer.common.BorderValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 
 import java.util.Date;
 
@@ -12,10 +15,10 @@ import java.util.Date;
 @NoArgsConstructor
 public class WriterObj {
 
-    @ExcelWriter(value = "F5", height = 100)
+    @ExcelWriter(value = "F5", height = 100, border = @ExcelWriterBorder(value = {BorderValue.TOP}))
     private String name;
 
-    @ExcelWriter(value = "F6", align = "center", height = 1000)
+    @ExcelWriter(value = "F6", horizontalAlignment = HorizontalAlignment.CENTER, height = 1000)
     private Double money;
 
     @ExcelWriter(value = "F7", formatter = Writer1DateExcelWriterFormatter.class, width = 1000)

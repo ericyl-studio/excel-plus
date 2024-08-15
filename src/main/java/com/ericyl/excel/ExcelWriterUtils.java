@@ -3,15 +3,18 @@ package com.ericyl.excel;
 import com.ericyl.excel.util.ObjectUtils;
 import com.ericyl.excel.writer.IExcelWriterListener;
 import com.ericyl.excel.writer.annotation.ExcelWriter;
+import com.ericyl.excel.writer.annotation.ExcelWriterBorder;
+import com.ericyl.excel.writer.common.BorderValue;
 import com.ericyl.excel.writer.formatter.DefaultExcelWriterFormatter;
 import com.ericyl.excel.writer.formatter.IExcelWriterFormatter;
 import com.ericyl.excel.writer.model.ExcelColumn;
+import com.ericyl.excel.writer.model.ExcelColumnBorder;
 import com.ericyl.excel.writer.model.ExcelTable;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -201,8 +204,24 @@ public class ExcelWriterUtils {
             if (cellWidth != -1) excelColumn.setWidth(cellWidth);
             short cellHeight = annotation.height();
             if (cellHeight != -1) excelColumn.setHeight(cellHeight);
-            String cellAlign = annotation.align();
-            if (StringUtils.isNotEmpty(cellAlign)) excelColumn.setAlign(cellAlign);
+            VerticalAlignment verticalAlignment = annotation.verticalAlignment();
+            if (verticalAlignment != null) excelColumn.setVerticalAlignment(verticalAlignment);
+            HorizontalAlignment horizontalAlignment = annotation.horizontalAlignment();
+            if (horizontalAlignment != null) excelColumn.setHorizontalAlignment(horizontalAlignment);
+            ExcelWriterBorder border = annotation.border();
+            if (border != null) {
+                ExcelColumnBorder excelColumnBorder = new ExcelColumnBorder();
+                BorderValue[] values = border.value();
+                if (ArrayUtils.isNotEmpty(values))
+                    excelColumnBorder.setValue(values);
+                BorderStyle style = border.style();
+                if (style != null)
+                    excelColumnBorder.setStyle(style);
+                IndexedColors color = border.color();
+                if (color != null)
+                    excelColumnBorder.setColor(color);
+                excelColumn.setBorder(excelColumnBorder);
+            }
             return excelColumn;
         }).sorted().collect(Collectors.toList());
     }
@@ -240,6 +259,8 @@ public class ExcelWriterUtils {
             cell.setCellValue((Date) obj);
         } else if (obj instanceof Boolean) {
             cell.setCellValue((Boolean) obj);
+        } else {
+            throw new RuntimeException("暂不支持当前数据类型");
         }
 
         setCellStyle(workbook, cell, excelColumn);
@@ -248,19 +269,74 @@ public class ExcelWriterUtils {
 
     private static void setCellStyle(Workbook workbook, Cell cell, ExcelColumn excelColumn) {
         CellStyle cellStyle = workbook.createCellStyle();
-        cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-        switch (excelColumn.getAlign()) {
-            case "center":
-                cellStyle.setAlignment(HorizontalAlignment.CENTER);
-                break;
-            case "end":
-                cellStyle.setAlignment(HorizontalAlignment.RIGHT);
-                break;
-            case "start":
-            default:
-                cellStyle.setAlignment(HorizontalAlignment.LEFT);
-                break;
+
+        // 设置边框样式
+        ExcelColumnBorder excelColumnBorder = excelColumn.getBorder();
+        if (excelColumnBorder != null && ArrayUtils.isNotEmpty(excelColumnBorder.getValue())) {
+            BorderStyle style = excelColumnBorder.getStyle();
+            IndexedColors color = excelColumnBorder.getColor();
+            for (BorderValue value : excelColumnBorder.getValue()) {
+                switch (value) {
+                    case ALL:
+                        cellStyle.setBorderTop(style);
+                        cellStyle.setBorderBottom(style);
+                        cellStyle.setBorderLeft(style);
+                        cellStyle.setBorderRight(style);
+                        if (color != null) {
+                            cellStyle.setTopBorderColor(color.getIndex());
+                            cellStyle.setBottomBorderColor(color.getIndex());
+                            cellStyle.setLeftBorderColor(color.getIndex());
+                            cellStyle.setRightBorderColor(color.getIndex());
+                        }
+                        break;
+                    case X:
+                        cellStyle.setBorderLeft(style);
+                        cellStyle.setBorderRight(style);
+                        if (color != null) {
+                            cellStyle.setLeftBorderColor(color.getIndex());
+                            cellStyle.setRightBorderColor(color.getIndex());
+                        }
+                        break;
+                    case Y:
+                        cellStyle.setBorderTop(style);
+                        cellStyle.setBorderBottom(style);
+                        if (color != null) {
+                            cellStyle.setTopBorderColor(color.getIndex());
+                            cellStyle.setBottomBorderColor(color.getIndex());
+                        }
+                        break;
+                    case TOP:
+                        cellStyle.setBorderTop(style);
+                        if (color != null)
+                            cellStyle.setTopBorderColor(color.getIndex());
+                        break;
+                    case BOTTOM:
+                        cellStyle.setBorderBottom(style);
+                        if (color != null)
+                            cellStyle.setBottomBorderColor(color.getIndex());
+                        break;
+                    case LEFT:
+                        cellStyle.setBorderLeft(style);
+                        if (color != null)
+                            cellStyle.setLeftBorderColor(color.getIndex());
+                        break;
+                    case RIGHT:
+                        cellStyle.setBorderRight(style);
+                        if (color != null)
+                            cellStyle.setRightBorderColor(color.getIndex());
+                        break;
+                }
+            }
+
         }
+
+        VerticalAlignment verticalAlignment = excelColumn.getVerticalAlignment();
+        if (verticalAlignment != null)
+            cellStyle.setVerticalAlignment(verticalAlignment);
+
+        HorizontalAlignment horizontalAlignment = excelColumn.getHorizontalAlignment();
+        if (horizontalAlignment != null)
+            cellStyle.setAlignment(horizontalAlignment);
 
         cell.setCellStyle(cellStyle);
     }
