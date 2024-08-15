@@ -40,15 +40,17 @@ public class ExcelReaderUtils {
 
         List<FieldCell> fieldCellList = getFieldCells(clazz, null, null);
 
-        IntStream.range(0, sheet.getLastRowNum() + 1).forEach(rowIndex -> {
-            Row row = sheet.getRow(rowIndex);
-
-            List<FieldCell> rowFieldCellList = fieldCellList.stream().filter(fieldCell -> Objects.equals(fieldCell.getRowIndex(), rowIndex + 1)).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(rowFieldCellList)) {
-
-                IntStream.range(0, row.getLastCellNum()).forEach(cellIndex -> rowFieldCellList.stream().filter(it -> Objects.equals(it.getCellIndex(), cellIndex + 1)).findFirst().ifPresent(fieldCell -> ObjectUtils.setField(obj, fieldCell.getField(), getValue(fieldCell.getField().getType(), row.getCell(cellIndex), fieldCell.getFormatter()))));
-            }
-        });
+        for (FieldCell fieldCell : fieldCellList) {
+            if (fieldCell.getRowIndex() == -1 || fieldCell.getCellIndex() == -1)
+                continue;
+            Row row = sheet.getRow(fieldCell.getRowIndex());
+            if (row == null)
+                continue;
+            Cell cell = row.getCell(fieldCell.getCellIndex());
+            if (cell == null)
+                continue;
+            ObjectUtils.setField(obj, fieldCell.getField(), getValue(fieldCell.getField().getType(), cell, fieldCell.getFormatter()));
+        }
 
         return obj;
     }
@@ -113,8 +115,8 @@ public class ExcelReaderUtils {
                 Matcher matcher = Pattern.compile("(\\D+)(\\d+)").matcher(cellValue);
                 if (matcher.find()) {
                     String[] parts = {matcher.group(1), matcher.group(2)};
-                    fieldCell.setRowIndex(Integer.parseInt(parts[1]));
-                    fieldCell.setCellIndex(ObjectUtils.convertToNumber(parts[0]));
+                    fieldCell.setRowIndex(Integer.parseInt(parts[1]) - 1);
+                    fieldCell.setCellIndex(ObjectUtils.convertToNumber(parts[0]) - 1);
                 }
             } else if (cellIndex != -1) {
                 //判断游标

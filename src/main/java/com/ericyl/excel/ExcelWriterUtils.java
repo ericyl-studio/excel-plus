@@ -34,7 +34,9 @@ public class ExcelWriterUtils {
 
         List<ExcelColumn> excelColumnList = getExcelColumns(obj.getClass(), obj);
 
-        excelColumnList.forEach(excelColumn -> {
+        for (ExcelColumn excelColumn : excelColumnList) {
+            if (excelColumn.getRowIndex() == -1 || excelColumn.getCellIndex() == -1)
+                continue;
             Row row = sheet.getRow(excelColumn.getRowIndex());
             if (row == null)
                 row = sheet.createRow(excelColumn.getRowIndex());
@@ -42,8 +44,8 @@ public class ExcelWriterUtils {
             if (cell == null)
                 cell = row.createCell(excelColumn.getCellIndex());
             setCellValue(workbook, cell, excelColumn);
-        });
 
+        }
     }
 
     public static <T> void list2Excel(Workbook workbook, Sheet sheet, List<T> list, Class<T> clazz) {
@@ -118,7 +120,7 @@ public class ExcelWriterUtils {
         });
 
     }
-    
+
     public static void table2Excel(Workbook workbook, Sheet sheet, ExcelTable table) {
         if (table == null) throw new RuntimeException("未查询到需导出的数据");
         setCell(workbook, sheet, table.getHeaders(), 0);
