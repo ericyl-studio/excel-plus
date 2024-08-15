@@ -23,25 +23,25 @@ public class Test {
 
     public static void main(String... args) {
         //Reader
-//        try (InputStream inputStream = Files.newInputStream(new File("./demo.xlsx").toPath())) {
-//            Workbook workbook = WorkbookFactory.create(inputStream);
-//            Iterable<Sheet> sheetIterable = workbook::sheetIterator;
-//            StreamSupport.stream(sheetIterable.spliterator(), false).forEach(sheet -> {
-//                if (Objects.equals("Sheet1", sheet.getSheetName()))
-//                    read1(sheet);
-//                if (Objects.equals("Sheet2", sheet.getSheetName()))
-//                    read2(sheet);
-//                if (Objects.equals("Sheet3", sheet.getSheetName()))
-//                    read3(sheet);
-//            });
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        try (InputStream inputStream = Files.newInputStream(new File("./demo.xlsx").toPath())) {
+            Workbook workbook = WorkbookFactory.create(inputStream);
+            Iterable<Sheet> sheetIterable = workbook::sheetIterator;
+            StreamSupport.stream(sheetIterable.spliterator(), false).forEach(sheet -> {
+                if (Objects.equals("Sheet1", sheet.getSheetName()))
+                    read1(sheet);
+                if (Objects.equals("Sheet2", sheet.getSheetName()))
+                    read2(sheet);
+                if (Objects.equals("Sheet3", sheet.getSheetName()))
+                    read3(sheet);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         //Writer
         writeObj();
-//        write1();
-//        write2();
-//        write3();
+        write1();
+        write2();
+        write3();
 
     }
 
@@ -138,18 +138,18 @@ public class Test {
     //复杂表结构生成
     private static void write3() {
         List<List<ExcelColumn>> headerList = new ArrayList<List<ExcelColumn>>() {{
-            add(new ArrayList<>() {{
+            add(new ArrayList<ExcelColumn>() {{
                 add(new ExcelColumn("项目", "xm", 4, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
                 add(new ExcelColumn("支出", "zc", 3, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
             }});
-            add(new ArrayList<>() {{
+            add(new ArrayList<ExcelColumn>() {{
                 add(new ExcelColumn("科目编码", "kmbm", 3, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
                 add(new ExcelColumn("科目名称", "kmmc", 1, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
                 add(new ExcelColumn("小计", "xj", 1, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
                 add(new ExcelColumn("基本支出", "jbzc", 1, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
                 add(new ExcelColumn("项目支出", "mxzc", 1, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
             }});
-            add(new ArrayList<>() {{
+            add(new ArrayList<ExcelColumn>() {{
                 add(new ExcelColumn("类", "l", 1, 2).withHorizontalAlignment(HorizontalAlignment.CENTER));
                 add(new ExcelColumn("款", "k", 1, 2).withHorizontalAlignment(HorizontalAlignment.CENTER));
                 add(new ExcelColumn("项", "x", 1, 2).withHorizontalAlignment(HorizontalAlignment.CENTER));
@@ -158,7 +158,7 @@ public class Test {
                 add(new ExcelColumn("2", "lc2", 1, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
                 add(new ExcelColumn("3", "lc3", 1, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
             }});
-            add(new ArrayList<>() {{
+            add(new ArrayList<ExcelColumn>() {{
                 add(new ExcelColumn("合计", "hj", 1, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
                 add(new ExcelColumn(0.0, "hj1", 1, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
                 add(new ExcelColumn(0.1, "hj2", 1, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
@@ -168,7 +168,7 @@ public class Test {
         }};
         //可通过 List.stream 进行转换
         List<List<ExcelColumn>> bodyList = new ArrayList<List<ExcelColumn>>() {{
-            add(new ArrayList<>() {{
+            add(new ArrayList<ExcelColumn>() {{
                 add(new ExcelColumn("科目代码1", "kmdm", 3, 1).withHorizontalAlignment(HorizontalAlignment.LEFT));
                 add(new ExcelColumn("科目名称1", "kmmc", 1, 1).withHorizontalAlignment(HorizontalAlignment.LEFT));
                 add(new ExcelColumn(1.0, "xj", 1, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
@@ -177,7 +177,7 @@ public class Test {
             }});
         }};
         List<List<ExcelColumn>> footerList = new ArrayList<List<ExcelColumn>>() {{
-            add(new ArrayList<>() {{
+            add(new ArrayList<ExcelColumn>() {{
                 add(new ExcelColumn("注：", ""));
             }});
         }};
