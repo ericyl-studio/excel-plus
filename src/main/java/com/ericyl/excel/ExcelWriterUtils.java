@@ -46,11 +46,8 @@ public class ExcelWriterUtils {
 
     }
 
-    public static <T> String list2Excel(List<T> list, Class<T> clazz) {
+    public static <T> void list2Excel(Workbook workbook, Sheet sheet, List<T> list, Class<T> clazz) {
         if (CollectionUtils.isEmpty(list)) throw new RuntimeException("未查询到需导出的数据");
-
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("sheet1");
         // 表头
         Row title = sheet.createRow(0);
         List<ExcelColumn> titleExcelColumnList = getExcelColumns(clazz, null);
@@ -82,14 +79,10 @@ public class ExcelWriterUtils {
             });
         });
 
-        return toFile(workbook);
 
     }
 
-    public static <T> String list2Excel(int page, int pageSize, Class<T> clazz, IExcelWriterListener<List<T>> doExcel) {
-
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("sheet1");
+    public static <T> void list2Excel(Workbook workbook, Sheet sheet, int page, int pageSize, Class<T> clazz, IExcelWriterListener<List<T>> doExcel) {
 
         // 表头
         Row title = sheet.createRow(0);
@@ -124,19 +117,13 @@ public class ExcelWriterUtils {
             });
         });
 
-        return toFile(workbook);
     }
-
-
-    public static String table2Excel(ExcelTable table) {
+    
+    public static void table2Excel(Workbook workbook, Sheet sheet, ExcelTable table) {
         if (table == null) throw new RuntimeException("未查询到需导出的数据");
-
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("sheet1");
         setCell(workbook, sheet, table.getHeaders(), 0);
         setCell(workbook, sheet, table.getColumns(), table.getHeaders().size());
         setCell(workbook, sheet, table.getFooters(), table.getHeaders().size() + table.getColumns().size());
-        return toFile(workbook);
     }
 
     private static void setCell(Workbook workbook, Sheet sheet, List<List<ExcelColumn>> excelColumnList, int rowspan) {

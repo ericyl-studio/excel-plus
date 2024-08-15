@@ -6,6 +6,7 @@ import com.ericyl.excel.reader.IExcelReaderListener;
 import com.ericyl.excel.writer.model.ExcelColumn;
 import com.ericyl.excel.writer.model.ExcelTable;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.InputStream;
@@ -117,15 +118,21 @@ public class Test {
 
     //列表生成
     private static void write1() {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet();
         List<Writer1> writer1List = IntStream.range(0, 10).mapToObj(index -> new Writer1("name_" + index, 10.0 + index, new Date())).collect(Collectors.toList());
-        ExcelWriterUtils.list2Excel(writer1List, Writer1.class);
+        ExcelWriterUtils.list2Excel(workbook, sheet, writer1List, Writer1.class);
+        ExcelWriterUtils.toFile(workbook);
     }
 
     //分页生成
     private static void write2() {
-        ExcelWriterUtils.list2Excel(5, 10, Writer1.class,
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet();
+        ExcelWriterUtils.list2Excel(workbook, sheet, 5, 10, Writer1.class,
                 (pageNumber, pageSize) -> IntStream.range(0, pageSize).mapToObj(index -> new Writer1("name_" + pageNumber + "_" + index, 10.0 + index)).collect(Collectors.toList())
         );
+        ExcelWriterUtils.toFile(workbook);
     }
 
     //复杂表结构生成
@@ -175,7 +182,11 @@ public class Test {
             }});
         }};
         ExcelTable table = new ExcelTable(headerList, bodyList, footerList);
-        ExcelWriterUtils.table2Excel(table);
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet();
+        ExcelWriterUtils.table2Excel(workbook, sheet, table);
+        ExcelWriterUtils.toFile(workbook);
     }
 
 }
