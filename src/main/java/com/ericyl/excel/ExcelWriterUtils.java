@@ -9,6 +9,7 @@ import com.ericyl.excel.writer.formatter.DefaultExcelWriterFormatter;
 import com.ericyl.excel.writer.formatter.IExcelWriterFormatter;
 import com.ericyl.excel.writer.model.ExcelColumn;
 import com.ericyl.excel.writer.model.ExcelColumnBorder;
+import com.ericyl.excel.writer.model.ExcelRegion;
 import com.ericyl.excel.writer.model.ExcelTable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -30,6 +31,36 @@ import java.util.stream.IntStream;
 
 //导出 excel
 public class ExcelWriterUtils {
+
+    public static void xy(Workbook workbook, Sheet sheet, String xy, Object obj) {
+        if (sheet == null)
+            throw new RuntimeException("表格数据不能为空");
+
+        if (StringUtils.isEmpty(xy))
+            throw new RuntimeException("坐标不能为空");
+
+        if (obj == null)
+            throw new RuntimeException("数据不能为空");
+
+        Matcher matcher = Pattern.compile("(\\D+)(\\d+)").matcher(xy);
+        if (!matcher.find())
+            return;
+
+        String[] parts = {matcher.group(1), matcher.group(2)};
+        int rowIndex = Integer.parseInt(parts[1]) - 1;
+        int cellIndex = ObjectUtils.convertToNumber(parts[0]) - 1;
+
+        Row row = sheet.getRow(rowIndex);
+        if (row == null)
+            row = sheet.createRow(rowIndex);
+        Cell cell = row.getCell(cellIndex);
+        if (cell == null)
+            cell = row.createCell(cellIndex);
+
+        ExcelColumn excelColumn = new ExcelColumn(obj, null);
+        setCellValue(workbook, cell, excelColumn);
+
+    }
 
     public static <T> void obj2Excel(Workbook workbook, Sheet sheet, T obj) {
         if (sheet == null)
@@ -132,6 +163,7 @@ public class ExcelWriterUtils {
     }
 
     private static void setCell(Workbook workbook, Sheet sheet, List<List<ExcelColumn>> excelColumnList, int rowspan) {
+        List<ExcelRegion> excelRegionList = new ArrayList<>();
         IntStream.range(0, excelColumnList.size()).forEach(index -> {
             Row row = sheet.createRow(rowspan + index);
             int parentColspan = IntStream.range(0, index).reduce(0, (acc, item) -> {
@@ -154,10 +186,30 @@ public class ExcelWriterUtils {
                 if (excelColumn.getColspan() > 1 || excelColumn.getRowspan() > 1) {
                     CellRangeAddress region = new CellRangeAddress(rowspan + index, rowspan + index + excelColumn.getRowspan() - 1, parentColspan + colspan, parentColspan + colspan + excelColumn.getColspan() - 1);
                     sheet.addMergedRegion(region);
+                    excelRegionList.add(new ExcelRegion(region, excelColumn));
                 }
             });
 
         });
+
+        excelRegionList.forEach(excelRegion -> {
+            setRegionStyle(workbook, sheet, excelRegion.getRegion(), excelRegion.getExcelColumn());
+        });
+    }
+
+    private static void setRegionStyle(Workbook workbook, Sheet sheet, CellRangeAddress region, ExcelColumn excelColumn) {
+        for (int rowNum = region.getFirstRow(); rowNum <= region.getLastRow(); rowNum++) {
+            Row row = sheet.getRow(rowNum);
+            if (row == null)
+                row = sheet.createRow(rowNum);
+
+            for (int colNum = region.getFirstColumn(); colNum <= region.getLastColumn(); colNum++) {
+                Cell cell = row.getCell(colNum);
+                if (cell == null)
+                    cell = row.createCell(colNum);
+                setCellStyle(workbook, cell, excelColumn);
+            }
+        }
     }
 
     private static List<ExcelColumn> getExcelColumns(Class<?> clazz, Object obj) {

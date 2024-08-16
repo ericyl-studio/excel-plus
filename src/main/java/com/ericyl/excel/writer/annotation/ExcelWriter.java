@@ -36,7 +36,6 @@ public @interface ExcelWriter {
 
     /**
      * 高度
-     * 取 max
      */
     short height() default -1;
 
@@ -55,6 +54,9 @@ public @interface ExcelWriter {
      */
     Class<? extends IExcelWriterFormatter> formatter() default DefaultExcelWriterFormatter.class;
 
+    /**
+     * 边框
+     */
     ExcelWriterBorder border() default @ExcelWriterBorder;
 }
 

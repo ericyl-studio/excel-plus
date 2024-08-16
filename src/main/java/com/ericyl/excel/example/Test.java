@@ -3,7 +3,9 @@ package com.ericyl.excel.example;
 import com.ericyl.excel.ExcelReaderUtils;
 import com.ericyl.excel.ExcelWriterUtils;
 import com.ericyl.excel.reader.IExcelReaderListener;
+import com.ericyl.excel.writer.common.BorderValue;
 import com.ericyl.excel.writer.model.ExcelColumn;
+import com.ericyl.excel.writer.model.ExcelColumnBorder;
 import com.ericyl.excel.writer.model.ExcelTable;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -23,24 +25,24 @@ public class Test {
 
     public static void main(String... args) {
         //Reader
-        try (InputStream inputStream = Files.newInputStream(new File("./demo.xlsx").toPath())) {
-            Workbook workbook = WorkbookFactory.create(inputStream);
-            Iterable<Sheet> sheetIterable = workbook::sheetIterator;
-            StreamSupport.stream(sheetIterable.spliterator(), false).forEach(sheet -> {
-                if (Objects.equals("Sheet1", sheet.getSheetName()))
-                    read1(sheet);
-                if (Objects.equals("Sheet2", sheet.getSheetName()))
-                    read2(sheet);
-                if (Objects.equals("Sheet3", sheet.getSheetName()))
-                    read3(sheet);
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try (InputStream inputStream = Files.newInputStream(new File("./demo.xlsx").toPath())) {
+//            Workbook workbook = WorkbookFactory.create(inputStream);
+//            Iterable<Sheet> sheetIterable = workbook::sheetIterator;
+//            StreamSupport.stream(sheetIterable.spliterator(), false).forEach(sheet -> {
+//                if (Objects.equals("Sheet1", sheet.getSheetName()))
+//                    read1(sheet);
+//                if (Objects.equals("Sheet2", sheet.getSheetName()))
+//                    read2(sheet);
+//                if (Objects.equals("Sheet3", sheet.getSheetName()))
+//                    read3(sheet);
+//            });
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
         //Writer
-        writeObj();
-        write1();
-        write2();
+//        writeObj();
+//        write1();
+//        write2();
         write3();
 
     }
@@ -139,7 +141,7 @@ public class Test {
     private static void write3() {
         List<List<ExcelColumn>> headerList = new ArrayList<List<ExcelColumn>>() {{
             add(new ArrayList<ExcelColumn>() {{
-                add(new ExcelColumn("项目", "xm", 4, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
+                add(new ExcelColumn("项目", "xm", 4, 1).withHorizontalAlignment(HorizontalAlignment.CENTER).withBorder(new ExcelColumnBorder(new BorderValue[]{BorderValue.ALL}, BorderStyle.THIN, IndexedColors.BLACK)));
                 add(new ExcelColumn("支出", "zc", 3, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
             }});
             add(new ArrayList<ExcelColumn>() {{
@@ -150,9 +152,9 @@ public class Test {
                 add(new ExcelColumn("项目支出", "mxzc", 1, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
             }});
             add(new ArrayList<ExcelColumn>() {{
-                add(new ExcelColumn("类", "l", 1, 2).withHorizontalAlignment(HorizontalAlignment.CENTER));
+                add(new ExcelColumn("类", "l", 1, 2).withHorizontalAlignment(HorizontalAlignment.CENTER).withBorder(new ExcelColumnBorder(new BorderValue[]{BorderValue.ALL}, BorderStyle.THIN, IndexedColors.BLACK)));
                 add(new ExcelColumn("款", "k", 1, 2).withHorizontalAlignment(HorizontalAlignment.CENTER));
-                add(new ExcelColumn("项", "x", 1, 2).withHorizontalAlignment(HorizontalAlignment.CENTER));
+                add(new ExcelColumn("项", "x", 1, 2).withHorizontalAlignment(HorizontalAlignment.CENTER).withBorder(new ExcelColumnBorder(new BorderValue[]{BorderValue.ALL}, BorderStyle.THIN, IndexedColors.BLACK)));
                 add(new ExcelColumn("栏次", "lc", 1, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
                 add(new ExcelColumn("1", "lc1", 1, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
                 add(new ExcelColumn("2", "lc2", 1, 1).withHorizontalAlignment(HorizontalAlignment.CENTER));
