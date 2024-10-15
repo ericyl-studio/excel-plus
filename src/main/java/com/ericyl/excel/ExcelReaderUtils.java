@@ -12,10 +12,7 @@ import com.ericyl.excel.util.ObjectUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.lang.reflect.Field;
@@ -262,7 +259,10 @@ public class ExcelReaderUtils {
                 obj = cell.getStringCellValue();
                 break;
             case NUMERIC:
-                obj = cell.getNumericCellValue();
+                if (DateUtil.isCellDateFormatted(cell))
+                    obj = cell.getDateCellValue();
+                else
+                    obj = cell.getNumericCellValue();
                 break;
             case BOOLEAN:
                 obj = cell.getBooleanCellValue();
