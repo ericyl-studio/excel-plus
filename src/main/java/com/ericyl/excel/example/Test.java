@@ -112,7 +112,7 @@ public class Test {
                     ExcelWriterUtils.obj2Excel(workbook, sheet, writerObj);
                 }
             });
-            ExcelWriterUtils.toFile(workbook);
+            ExcelWriterUtils.toFile("excel", workbook);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -124,7 +124,7 @@ public class Test {
         Sheet sheet = workbook.createSheet();
         List<Writer1> writer1List = IntStream.range(0, 10).mapToObj(index -> new Writer1("name_" + index, 10.0 + index, new Date())).collect(Collectors.toList());
         ExcelWriterUtils.list2Excel(workbook, sheet, writer1List, Writer1.class);
-        ExcelWriterUtils.toFile(workbook);
+        ExcelWriterUtils.toFile("excel", workbook);
     }
 
     //分页生成
@@ -134,7 +134,7 @@ public class Test {
         ExcelWriterUtils.list2Excel(workbook, sheet, 5, 10, Writer1.class,
                 (pageNumber, pageSize) -> IntStream.range(0, pageSize).mapToObj(index -> new Writer1("name_" + pageNumber + "_" + index, 10.0 + index)).collect(Collectors.toList())
         );
-        ExcelWriterUtils.toFile(workbook);
+        ExcelWriterUtils.toFile("excel", workbook);
     }
 
     //复杂表结构生成
@@ -188,7 +188,7 @@ public class Test {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet();
         ExcelWriterUtils.table2Excel(workbook, sheet, table);
-        ExcelWriterUtils.toFile(workbook);
+        ExcelWriterUtils.toFile("excel/test", workbook);
     }
 
 }

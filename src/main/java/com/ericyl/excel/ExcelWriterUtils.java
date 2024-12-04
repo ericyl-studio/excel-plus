@@ -405,13 +405,17 @@ public class ExcelWriterUtils {
         row.setHeight(height);
     }
 
-    public static String toFile(Workbook workbook) {
+    public static String toFile(String filePath, Workbook workbook) {
+        if (filePath.startsWith("/"))
+            throw new RuntimeException("暂不支持绝对路径");
+        String[] filePaths = Arrays.stream(filePath.split("/")).filter(Objects::nonNull).toArray(String[]::new);
+        if (ArrayUtils.isEmpty(filePaths))
+            filePaths = new String[]{"excel"};
         String file = String.format("%s_%d.xlsx", UUID.randomUUID(), System.currentTimeMillis());
-
-        try (OutputStream out = getOutputStream("excel" + File.separator + file)) {
+        try (OutputStream out = getOutputStream(String.join(File.separator, filePaths) + File.separator + file)) {
             workbook.write(out);
             out.flush();
-            return String.format("/excel/%s", file);
+            return String.join("/", filePaths) + "/" + file;
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
         }
