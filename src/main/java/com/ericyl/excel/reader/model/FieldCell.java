@@ -22,7 +22,11 @@ public class FieldCell {
     /**
      * 列下标
      */
-    private Integer cellIndex;
+    private Integer startCellIndex;
+    /**
+     * 列下标
+     */
+    private Integer endCellIndex;
     /**
      * 数据转换器
      */

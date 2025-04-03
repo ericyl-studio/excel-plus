@@ -3,6 +3,7 @@ package com.ericyl.excel.example;
 import com.ericyl.excel.ExcelReaderUtils;
 import com.ericyl.excel.ExcelWriterUtils;
 import com.ericyl.excel.reader.IExcelReaderListener;
+import com.ericyl.excel.reader.model.HeaderCell;
 import com.ericyl.excel.writer.common.BorderValue;
 import com.ericyl.excel.writer.model.ExcelColumn;
 import com.ericyl.excel.writer.model.ExcelColumnBorder;
@@ -13,10 +14,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
@@ -25,25 +23,27 @@ public class Test {
 
     public static void main(String... args) {
         //Reader
-//        try (InputStream inputStream = Files.newInputStream(new File("./demo.xlsx").toPath())) {
-//            Workbook workbook = WorkbookFactory.create(inputStream);
-//            Iterable<Sheet> sheetIterable = workbook::sheetIterator;
-//            StreamSupport.stream(sheetIterable.spliterator(), false).forEach(sheet -> {
+        try (InputStream inputStream = Files.newInputStream(new File("./demo.xlsx").toPath())) {
+            Workbook workbook = WorkbookFactory.create(inputStream);
+            Iterable<Sheet> sheetIterable = workbook::sheetIterator;
+            StreamSupport.stream(sheetIterable.spliterator(), false).forEach(sheet -> {
 //                if (Objects.equals("Sheet1", sheet.getSheetName()))
 //                    read1(sheet);
 //                if (Objects.equals("Sheet2", sheet.getSheetName()))
 //                    read2(sheet);
-//                if (Objects.equals("Sheet3", sheet.getSheetName()))
+                if (Objects.equals("Sheet3", sheet.getSheetName()))
 //                    read3(sheet);
-//            });
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+                    read4(sheet);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         //Writer
 //        writeObj();
 //        write1();
 //        write2();
-        write3();
+//        write3();
 
     }
 
@@ -98,6 +98,30 @@ public class Test {
             }
         });
         reader3List.forEach(System.out::println);
+    }
+
+    //表头读取列表
+    private static void read4(Sheet sheet) {
+        IExcelReaderListener listener = new IExcelReaderListener() {
+
+            @Override
+            public int startHeaderNumber(Sheet sheet) {
+                return 2;
+            }
+
+            @Override
+            public int headerNumber(Sheet sheet) {
+                return 3;
+            }
+
+            @Override
+            public boolean isFooter(Row row) {
+                return false;
+            }
+        };
+        List<HeaderCell> headerCellList = ExcelReaderUtils.getHeaders(sheet, true, listener);
+        List<Map<String, Object>> list = ExcelReaderUtils.doMap(sheet, headerCellList, listener);
+        list.forEach(System.out::println);
     }
 
 
