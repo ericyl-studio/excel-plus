@@ -9,7 +9,6 @@ import com.ericyl.excel.reader.model.FieldCell;
 import com.ericyl.excel.reader.model.HeaderCell;
 import com.ericyl.excel.util.ObjectUtils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.*;
@@ -99,7 +98,7 @@ public class ExcelReaderUtils {
                     List<Object> list = IntStream.range(fieldCell.getStartCellIndex(), fieldCell.getEndCellIndex() + 1).mapToObj(cellIndex -> {
                         Cell cell = row.getCell(cellIndex);
                         return getValue(componentType, cell, fieldCell.getFormatter());
-                    }).toList();
+                    }).collect(Collectors.toList());
 
                     // 创建并填充数组
                     Object array = Array.newInstance(componentType, list.size());
@@ -162,7 +161,7 @@ public class ExcelReaderUtils {
             int endCellIndex = headerCellList.stream().mapToInt(HeaderCell::getEndCellIndex).max().orElse(0);
 
             finalHeaderCellList = IntStream.range(startCellIndex, endCellIndex + 1).mapToObj(index -> {
-                List<HeaderCell> list = headerCellList.stream().filter(it -> it.getStartCellIndex() <= index && it.getEndCellIndex() >= index).sorted(Comparator.comparing(HeaderCell::getRowIndex)).toList();
+                List<HeaderCell> list = headerCellList.stream().filter(it -> it.getStartCellIndex() <= index && it.getEndCellIndex() >= index).sorted(Comparator.comparing(HeaderCell::getRowIndex)).collect(Collectors.toList());
 
                 if (CollectionUtils.isEmpty(list)) return null;
                 if (list.size() == 1) return list.get(0);
