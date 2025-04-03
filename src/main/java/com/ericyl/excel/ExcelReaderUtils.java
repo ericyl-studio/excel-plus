@@ -208,6 +208,39 @@ public class ExcelReaderUtils {
         }).collect(Collectors.toList());
     }
 
+    public static List<Map<String, Object>> doMap(Sheet sheet, IExcelReaderListener doExcel) {
+        if (sheet == null) throw new RuntimeException("表格数据不能为空");
+        List<HeaderCell> headerCellList = getHeaders(sheet, true, doExcel);
+        if (CollectionUtils.isEmpty(headerCellList)) throw new RuntimeException("表头数据不能为空");
+        headerCellList.sort(Comparator.comparing(HeaderCell::getStartCellIndex).thenComparing(HeaderCell::getEndCellIndex));
+        int headerNumber;
+        if (doExcel != null) {
+            headerNumber = doExcel.headerNumber(sheet);
+        } else {
+            headerNumber = 0;
+        }
+        if (headerNumber < 0) throw new RuntimeException("表头行数不能小于0");
+
+        return IntStream.range(headerNumber, sheet.getLastRowNum() + 1).mapToObj(rowIndex -> {
+            Row row = sheet.getRow(rowIndex);
+            if (doExcel != null && doExcel.isFooter(row)) return null;
+            Map<String, Object> map = new LinkedHashMap<>();
+            for (HeaderCell headerCell : headerCellList) {
+                Object obj;
+                if (headerCell.getStartCellIndex() == headerCell.getEndCellIndex()) {
+                    obj = getCellValue(row.getCell(headerCell.getStartCellIndex()));
+                } else {
+                    obj = IntStream.range(headerCell.getStartCellIndex(), headerCell.getEndCellIndex() + 1).mapToObj(cellIndex -> {
+                        Cell cell = row.getCell(cellIndex);
+                        return getCellValue(cell);
+                    }).collect(Collectors.toList());
+                }
+                map.put(headerCell.getCellValue().toString(), obj);
+            }
+            return map;
+        }).collect(Collectors.toList());
+    }
+
     private static List<FieldCell> getFieldCells(Class<?> clazz, Sheet sheet, Integer startHeaderNumber, Integer endHeaderNumber) {
         Field[] fields = clazz.getDeclaredFields();
         return Arrays.stream(fields).map(field -> {
