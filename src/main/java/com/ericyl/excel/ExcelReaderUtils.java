@@ -79,7 +79,10 @@ public class ExcelReaderUtils {
             }
 
             for (FieldCell fieldCell : fieldCellList) {
-                if (fieldCell.getRowIndex() == -1 || fieldCell.getStartCellIndex() == -1) continue;
+                if (fieldCell.getRowIndex() == null && fieldCell.getStartCellIndex() == null)
+                    continue;
+                if (Objects.equals(-1, fieldCell.getRowIndex()) || Objects.equals(-1, fieldCell.getStartCellIndex()))
+                    continue;
 
                 Class<?> typeClazz = fieldCell.getField().getType();
                 if (Map.class.isAssignableFrom(typeClazz)) {
@@ -248,10 +251,13 @@ public class ExcelReaderUtils {
             fieldCell.setField(field);
             if (!field.isAnnotationPresent(ExcelReader.class)) return fieldCell;
             ExcelReader annotation = field.getAnnotation(ExcelReader.class);
-            if (annotation.formatter() != DefaultExcelReaderFormatter.class) try {
-                fieldCell.setFormatter(annotation.formatter().getDeclaredConstructor().newInstance());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            if (annotation == null) return fieldCell;
+            if (annotation.formatter() != DefaultExcelReaderFormatter.class) {
+                try {
+                    fieldCell.setFormatter(annotation.formatter().getDeclaredConstructor().newInstance());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
             String cellValue = annotation.value();
             int cellIndex = annotation.index();
