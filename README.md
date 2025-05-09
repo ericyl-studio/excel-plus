@@ -32,7 +32,7 @@
    //    }
    
      maven {
-       url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+       url = uri("https://central.sonatype.com/repository/maven-snapshots/")
      }
    
     //...
@@ -42,13 +42,7 @@
 2. 配置依赖
    ```
    dependencies {
-    implementation('com.ericyl.excel:excel-plus:0.1.1-SNAPSHOT')
-    implementation("org.projectlombok:lombok:${lombokVersion}")
-    annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
-    implementation("org.apache.commons:commons-lang3:${lang3Version}")
-    implementation("org.apache.commons:commons-collections4:${collectionsVersion}")
-    implementation("org.apache.poi:poi:${poiVersion}")
-    implementation("org.apache.poi:poi-ooxml:${poiVersion}")
+    implementation('com.ericyl.excel:excel-plus:0.1.13-SNAPSHOT')
    }
    ```
 
