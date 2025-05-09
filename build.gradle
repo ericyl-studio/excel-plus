@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.ericyl.excel'
-version = '0.1.12-SNAPSHOT'
+version = '0.1.13-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -44,10 +44,13 @@ publishing {
     }
 
     repositories {
+        // 新的Central Portal发布配置
         maven {
-            name = "OSSRH"
-//            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+            name = "CentralPortal"
+            // 对于正式版本
+            // url = "https://central.sonatype.com/api/v1/publisher"
+            // 对于SNAPSHOT版本
+            url = "https://central.sonatype.com/repository/maven-snapshots/"
             credentials {
                 username = System.getenv("MAVEN_USERNAME")
                 password = System.getenv("MAVEN_PASSWORD")
@@ -65,12 +68,20 @@ publishing {
 }
 
 dependencies {
-    implementation("org.projectlombok:lombok:${lombokVersion}")
+    // Lombok是一个注解处理器，只在编译时使用，不需要在运行时使用
+    compileOnly("org.projectlombok:lombok:${lombokVersion}")
     annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
-    implementation("org.apache.commons:commons-lang3:${lang3Version}")
-    implementation("org.apache.commons:commons-collections4:${collectionsVersion}")
-    implementation("org.apache.poi:poi:${poiVersion}")
-    implementation("org.apache.poi:poi-ooxml:${poiVersion}")
+
+    // 这些依赖是库的API的一部分，会暴露给使用者
+    api("org.apache.poi:poi:${poiVersion}")
+    api("org.apache.poi:poi-ooxml:${poiVersion}")
+    api("org.apache.commons:commons-lang3:${lang3Version}")
+    api("org.apache.commons:commons-collections4:${collectionsVersion}")
+
+    // 这些依赖是库的实现细节，不会暴露给使用者
+    // implementation
+
+    // 测试依赖
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
