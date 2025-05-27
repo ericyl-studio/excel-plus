@@ -78,7 +78,7 @@ public class Test {
     private static void read2(Sheet sheet) {
         List<Reader2> reader2List = ExcelReaderUtils.doList(sheet, Reader2.class, new IExcelReaderListener() {
             @Override
-            public int headerNumber(Sheet sheet) {
+            public int endHeaderNumber(Sheet sheet) {
                 // 动态查找包含"名称"的行作为表头行
                 return IntStream.range(0, sheet.getLastRowNum()).filter(rowIndex -> {
                     Row row = sheet.getRow(rowIndex);
@@ -113,7 +113,7 @@ public class Test {
     private static void read3(Sheet sheet) {
         List<Reader3> reader3List = ExcelReaderUtils.doList(sheet, Reader3.class, new IExcelReaderListener() {
             @Override
-            public int headerNumber(Sheet sheet) {
+            public int endHeaderNumber(Sheet sheet) {
                 return 3; // 数据从第3行开始
             }
 
@@ -140,8 +140,8 @@ public class Test {
             }
 
             @Override
-            public int headerNumber(Sheet sheet) {
-                return 3; // 数据从第3行开始
+            public int endHeaderNumber(Sheet sheet) {
+                return 3; // 数据从第3行结束
             }
 
             @Override

@@ -30,16 +30,16 @@ public interface IExcelReaderListener {
     }
 
     /**
-     * 获取数据开始行号
+     * 获取数据结束行号
      * <p>
-     * 返回实际数据开始的行号，通常是表头结束的下一行。
+     * 返回实际数据结束的行号，通常是表头结束的下一行。
      * 注意：返回的是实际行号（从1开始），不是索引（从0开始）。
      * </p>
      * 
      * @param sheet Excel工作表
-     * @return 数据开始行号
+     * @return 数据结束行号
      */
-    int headerNumber(Sheet sheet);
+    int endHeaderNumber(Sheet sheet);
 
     /**
      * 判断是否为表尾行
