@@ -24,7 +24,7 @@ import java.util.stream.StreamSupport;
  * <p>
  * 演示各种Excel读写功能的使用方法
  * </p>
- * 
+ *
  * @author ericyl
  * @since 1.0
  */
@@ -37,12 +37,12 @@ public class Test {
             Iterable<Sheet> sheetIterable = workbook::sheetIterator;
             StreamSupport.stream(sheetIterable.spliterator(), false).forEach(sheet -> {
                 // 根据不同的Sheet演示不同的读取方式
-                // if (Objects.equals("Sheet1", sheet.getSheetName()))
-                // read1(sheet); // 单对象读取
-                // if (Objects.equals("Sheet2", sheet.getSheetName()))
-                // read2(sheet); // 通过索引读取列表
+                if (Objects.equals("Sheet1", sheet.getSheetName()))
+                    read1(sheet); // 单对象读取
+                if (Objects.equals("Sheet2", sheet.getSheetName()))
+                    read2(sheet); // 通过索引读取列表
                 if (Objects.equals("Sheet3", sheet.getSheetName())) {
-                    // read3(sheet); // 通过表头读取列表
+                    read3(sheet); // 通过表头读取列表
                     read4(sheet); // 读取为Map格式
                 }
             });
@@ -229,7 +229,7 @@ public class Test {
                     {
                         add(new ExcelColumn("项目", "xm", 4, 1)
                                 .withHorizontalAlignment(HorizontalAlignment.CENTER)
-                                .withBorder(new ExcelColumnBorder(new BorderValue[] { BorderValue.ALL },
+                                .withBorder(new ExcelColumnBorder(new BorderValue[]{BorderValue.ALL},
                                         BorderStyle.THIN, IndexedColors.BLACK)));
                         add(new ExcelColumn("支出", "zc", 3, 1)
                                 .withHorizontalAlignment(HorizontalAlignment.CENTER));
@@ -255,13 +255,13 @@ public class Test {
                     {
                         add(new ExcelColumn("类", "l", 1, 2) // 跨2行
                                 .withHorizontalAlignment(HorizontalAlignment.CENTER)
-                                .withBorder(new ExcelColumnBorder(new BorderValue[] { BorderValue.ALL },
+                                .withBorder(new ExcelColumnBorder(new BorderValue[]{BorderValue.ALL},
                                         BorderStyle.THIN, IndexedColors.BLACK)));
                         add(new ExcelColumn("款", "k", 1, 2) // 跨2行
                                 .withHorizontalAlignment(HorizontalAlignment.CENTER));
                         add(new ExcelColumn("项", "x", 1, 2) // 跨2行
                                 .withHorizontalAlignment(HorizontalAlignment.CENTER)
-                                .withBorder(new ExcelColumnBorder(new BorderValue[] { BorderValue.ALL },
+                                .withBorder(new ExcelColumnBorder(new BorderValue[]{BorderValue.ALL},
                                         BorderStyle.THIN, IndexedColors.BLACK)));
                         add(new ExcelColumn("栏次", "lc", 1, 1)
                                 .withHorizontalAlignment(HorizontalAlignment.CENTER));

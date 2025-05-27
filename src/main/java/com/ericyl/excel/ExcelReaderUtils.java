@@ -34,7 +34,7 @@ import java.util.stream.Stream;
  * 2. 列表读取：通过表头或索引批量读取数据到列表
  * 3. Map读取：将表格数据读取为 Map 格式
  * </p>
- * 
+ *
  * @author ericyl
  * @since 1.0
  */
@@ -56,7 +56,7 @@ public class ExcelReaderUtils {
      * 通过 @ExcelReader 注解中的坐标值（如 "A1"）定位并读取单元格数据，
      * 自动映射到指定类型的对象字段中
      * </p>
-     * 
+     *
      * @param sheet Excel工作表
      * @param clazz 目标对象类型
      * @param <T>   泛型类型
@@ -94,7 +94,7 @@ public class ExcelReaderUtils {
      * 2. 表头方式：@ExcelReader(name = {"表头1", "表头2"})
      * 支持多表头和复杂数据类型（数组、集合等）
      * </p>
-     * 
+     *
      * @param sheet   Excel工作表
      * @param clazz   列表元素类型
      * @param doExcel Excel读取监听器，用于自定义表头和表尾判断逻辑
@@ -111,7 +111,7 @@ public class ExcelReaderUtils {
         int endHeaderNumber;
         if (doExcel != null) {
             startHeaderNumber = doExcel.startHeaderNumber(sheet) - 1;
-            endHeaderNumber = doExcel.headerNumber(sheet);
+            endHeaderNumber = doExcel.endHeaderNumber(sheet);
         } else {
             startHeaderNumber = 0;
             endHeaderNumber = 0;
@@ -221,7 +221,7 @@ public class ExcelReaderUtils {
      * <p>
      * 解析 Excel 表头结构，支持多行表头和合并单元格的处理
      * </p>
-     * 
+     *
      * @param sheet    Excel工作表
      * @param isSingle 是否将多行表头合并为单行
      * @param doExcel  Excel读取监听器
@@ -236,7 +236,7 @@ public class ExcelReaderUtils {
         int endHeaderNumber;
         if (doExcel != null) {
             startHeaderNumber = doExcel.startHeaderNumber(sheet) - 1;
-            endHeaderNumber = doExcel.headerNumber(sheet);
+            endHeaderNumber = doExcel.endHeaderNumber(sheet);
         } else {
             startHeaderNumber = 0;
             endHeaderNumber = 0;
@@ -291,14 +291,14 @@ public class ExcelReaderUtils {
      * 根据提供的表头信息，将表格数据读取为 Map 列表，
      * 其中 key 为表头名称，value 为对应单元格的值
      * </p>
-     * 
+     *
      * @param sheet          Excel工作表
      * @param headerCellList 表头单元格列表
      * @param doExcel        Excel读取监听器
      * @return Map格式的数据列表
      */
     public static List<Map<String, Object>> doMap(Sheet sheet, List<HeaderCell> headerCellList,
-            IExcelReaderListener doExcel) {
+                                                  IExcelReaderListener doExcel) {
         if (sheet == null)
             throw new RuntimeException("表格数据不能为空");
         if (CollectionUtils.isEmpty(headerCellList))
@@ -309,7 +309,7 @@ public class ExcelReaderUtils {
                 .sort(Comparator.comparing(HeaderCell::getStartCellIndex).thenComparing(HeaderCell::getEndCellIndex));
         int headerNumber;
         if (doExcel != null) {
-            headerNumber = doExcel.headerNumber(sheet);
+            headerNumber = doExcel.endHeaderNumber(sheet);
         } else {
             headerNumber = 0;
         }
@@ -344,7 +344,7 @@ public class ExcelReaderUtils {
      * <p>
      * 自动解析表头信息，并将表格数据读取为 Map 列表
      * </p>
-     * 
+     *
      * @param sheet   Excel工作表
      * @param doExcel Excel读取监听器
      * @return Map格式的数据列表
@@ -362,7 +362,7 @@ public class ExcelReaderUtils {
                 .sort(Comparator.comparing(HeaderCell::getStartCellIndex).thenComparing(HeaderCell::getEndCellIndex));
         int headerNumber;
         if (doExcel != null) {
-            headerNumber = doExcel.headerNumber(sheet);
+            headerNumber = doExcel.endHeaderNumber(sheet);
         } else {
             headerNumber = 0;
         }
@@ -394,7 +394,7 @@ public class ExcelReaderUtils {
      * <p>
      * 根据 @ExcelReader 注解配置，建立字段与Excel单元格的对应关系
      * </p>
-     * 
+     *
      * @param clazz             目标类
      * @param sheet             Excel工作表
      * @param startHeaderNumber 表头开始行
@@ -402,7 +402,7 @@ public class ExcelReaderUtils {
      * @return 字段单元格映射列表
      */
     private static List<FieldCell> getFieldCells(Class<?> clazz, Sheet sheet, Integer startHeaderNumber,
-            Integer endHeaderNumber) {
+                                                 Integer endHeaderNumber) {
         Field[] fields = clazz.getDeclaredFields();
         return Arrays.stream(fields).map(field -> {
             FieldCell fieldCell = new FieldCell();
@@ -431,7 +431,7 @@ public class ExcelReaderUtils {
                 // 坐标方式定位（如 "A1"）
                 Matcher matcher = COORDINATE_PATTERN.matcher(cellValue);
                 if (matcher.find()) {
-                    String[] parts = { matcher.group(1), matcher.group(2) };
+                    String[] parts = {matcher.group(1), matcher.group(2)};
                     fieldCell.setRowIndex(Integer.parseInt(parts[1]) - 1);
                     fieldCell.setStartCellIndex(ObjectUtils.convertToNumber(parts[0]) - 1);
                     fieldCell.setEndCellIndex(ObjectUtils.convertToNumber(parts[0]) - 1);
@@ -531,7 +531,7 @@ public class ExcelReaderUtils {
      * <p>
      * 解析指定范围内的表头单元格，处理合并单元格的情况
      * </p>
-     * 
+     *
      * @param sheet             Excel工作表
      * @param startHeaderNumber 表头开始行
      * @param endHeaderNumber   表头结束行
@@ -539,7 +539,7 @@ public class ExcelReaderUtils {
      * @return 表头单元格列表
      */
     private static List<HeaderCell> getHeaderCellList(Sheet sheet, Integer startHeaderNumber, Integer endHeaderNumber,
-            List<CellRangeAddress> mergedRegionList) {
+                                                      List<CellRangeAddress> mergedRegionList) {
         if (startHeaderNumber >= endHeaderNumber)
             return Collections.emptyList();
 
@@ -576,7 +576,7 @@ public class ExcelReaderUtils {
      * <p>
      * 将单元格的值转换为指定的Java类型，支持自定义格式化器
      * </p>
-     * 
+     *
      * @param clazz     目标类型
      * @param cell      单元格
      * @param formatter 格式化器
@@ -655,7 +655,7 @@ public class ExcelReaderUtils {
      * 当指定位置的单元格为空时，会检查是否在合并单元格范围内，
      * 如果是，则返回合并单元格的值
      * </p>
-     * 
+     *
      * @param clazz     目标类型
      * @param sheet     工作表
      * @param rowIndex  行索引
@@ -664,7 +664,7 @@ public class ExcelReaderUtils {
      * @return 转换后的值
      */
     public static Object getValue(Class<?> clazz, Sheet sheet, int rowIndex, int cellIndex,
-            IExcelReaderFormatter<?> formatter) {
+                                  IExcelReaderFormatter<?> formatter) {
         Row row = sheet.getRow(rowIndex);
         if (row == null)
             return null;
@@ -697,7 +697,7 @@ public class ExcelReaderUtils {
      * <p>
      * 根据单元格类型返回对应的原始值，不进行类型转换
      * </p>
-     * 
+     *
      * @param cell 单元格
      * @return 单元格的原始值
      */
@@ -738,7 +738,7 @@ public class ExcelReaderUtils {
      * <p>
      * 如果指定位置在合并单元格范围内，返回合并单元格的值
      * </p>
-     * 
+     *
      * @param sheet     工作表
      * @param rowIndex  行索引
      * @param cellIndex 列索引
