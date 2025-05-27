@@ -135,8 +135,8 @@ public class Product {
 // 自定义读取行为
 IExcelReaderListener listener = new IExcelReaderListener() {
     @Override
-    public int headerNumber(Sheet sheet) {
-        return 3;  // 数据从第3行开始
+    public int endHeaderNumber(Sheet sheet) {
+        return 3;  // 表头结束行号是第3行
     }
 
     @Override
