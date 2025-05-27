@@ -29,7 +29,8 @@ import java.util.stream.Stream;
 public class ExcelReaderUtils {
 
     public static <T> T doIt(Sheet sheet, Class<T> clazz) {
-        if (sheet == null) throw new RuntimeException("表格数据不能为空");
+        if (sheet == null)
+            throw new RuntimeException("表格数据不能为空");
         T obj;
         try {
             obj = clazz.getDeclaredConstructor().newInstance();
@@ -40,19 +41,19 @@ public class ExcelReaderUtils {
         List<FieldCell> fieldCellList = getFieldCells(clazz, null, null, null);
 
         for (FieldCell fieldCell : fieldCellList) {
-            if (fieldCell.getRowIndex() == -1 || fieldCell.getStartCellIndex() == -1) continue;
-            Row row = sheet.getRow(fieldCell.getRowIndex());
-            if (row == null) continue;
-            Cell cell = row.getCell(fieldCell.getStartCellIndex());
-            if (cell == null) continue;
-            ObjectUtils.setField(obj, fieldCell.getField(), getValue(fieldCell.getField().getType(), cell, fieldCell.getFormatter()));
+            if (fieldCell.getRowIndex() == -1 || fieldCell.getStartCellIndex() == -1)
+                continue;
+            ObjectUtils.setField(obj, fieldCell.getField(),
+                    getValue(fieldCell.getField().getType(), sheet, fieldCell.getRowIndex(),
+                            fieldCell.getStartCellIndex(), fieldCell.getFormatter()));
         }
 
         return obj;
     }
 
     public static <T> List<T> doList(Sheet sheet, Class<T> clazz, IExcelReaderListener doExcel) {
-        if (sheet == null) throw new RuntimeException("表格数据不能为空");
+        if (sheet == null)
+            throw new RuntimeException("表格数据不能为空");
         int startHeaderNumber;
         int endHeaderNumber;
         if (doExcel != null) {
@@ -63,14 +64,17 @@ public class ExcelReaderUtils {
             endHeaderNumber = 0;
         }
 
-        if (startHeaderNumber < 0) throw new RuntimeException("表头开始行数不正确");
-        if (endHeaderNumber < 0) throw new RuntimeException("表头行数不能小于0");
+        if (startHeaderNumber < 0)
+            throw new RuntimeException("表头开始行数不正确");
+        if (endHeaderNumber < 0)
+            throw new RuntimeException("表头行数不能小于0");
 
         List<FieldCell> fieldCellList = getFieldCells(clazz, sheet, startHeaderNumber, endHeaderNumber);
 
         return IntStream.range(endHeaderNumber, sheet.getLastRowNum() + 1).mapToObj(rowIndex -> {
             Row row = sheet.getRow(rowIndex);
-            if (doExcel != null && doExcel.isFooter(row)) return null;
+            if (doExcel != null && doExcel.isFooter(row))
+                return null;
             T obj;
             try {
                 obj = clazz.getDeclaredConstructor().newInstance();
@@ -88,20 +92,22 @@ public class ExcelReaderUtils {
                 if (Map.class.isAssignableFrom(typeClazz)) {
                     throw new RuntimeException("暂不支持Map类型");
                 } else if (typeClazz.isEnum()) {
-                    if (fieldCell.getFormatter() == null) throw new RuntimeException("请自定义转换器");
+                    if (fieldCell.getFormatter() == null)
+                        throw new RuntimeException("请自定义转换器");
                     if (!Objects.equals(fieldCell.getStartCellIndex(), fieldCell.getEndCellIndex()))
                         throw new RuntimeException("枚举类型不支持多列");
                     Cell cell = row.getCell(fieldCell.getStartCellIndex());
-                    if (cell == null) continue;
+                    if (cell == null)
+                        continue;
                     fieldCell.getFormatter().format(cell);
                 } else if (typeClazz.isArray()) {
                     // 获取数组元素类型
                     Class<?> componentType = typeClazz.getComponentType();
                     // 处理数组
-                    List<Object> list = IntStream.range(fieldCell.getStartCellIndex(), fieldCell.getEndCellIndex() + 1).mapToObj(cellIndex -> {
-                        Cell cell = row.getCell(cellIndex);
-                        return getValue(componentType, cell, fieldCell.getFormatter());
-                    }).collect(Collectors.toList());
+                    List<Object> list = IntStream.range(fieldCell.getStartCellIndex(), fieldCell.getEndCellIndex() + 1)
+                            .mapToObj(cellIndex -> {
+                                return getValue(componentType, sheet, rowIndex, cellIndex, fieldCell.getFormatter());
+                            }).collect(Collectors.toList());
 
                     // 创建并填充数组
                     Object array = Array.newInstance(componentType, list.size());
@@ -112,13 +118,15 @@ public class ExcelReaderUtils {
                 } else if (Collection.class.isAssignableFrom(typeClazz)) {
                     Type rowType = ((ParameterizedType) fieldCell.getField().getGenericType()).getRawType();
                     Type[] types = ((ParameterizedType) fieldCell.getField().getGenericType()).getActualTypeArguments();
-                    if (types.length != 1) throw new RuntimeException("未知类型");
+                    if (types.length != 1)
+                        throw new RuntimeException("未知类型");
                     Class<?> typeClass = (Class<?>) types[0];
 
-                    Stream<Object> stream = IntStream.range(fieldCell.getStartCellIndex(), fieldCell.getEndCellIndex() + 1).mapToObj(cellIndex -> {
-                        Cell cell = row.getCell(cellIndex);
-                        return getValue(typeClass, cell, fieldCell.getFormatter());
-                    });
+                    Stream<Object> stream = IntStream
+                            .range(fieldCell.getStartCellIndex(), fieldCell.getEndCellIndex() + 1)
+                            .mapToObj(cellIndex -> {
+                                return getValue(typeClass, sheet, rowIndex, cellIndex, fieldCell.getFormatter());
+                            });
 
                     if (rowType instanceof List<?>) {
                         ObjectUtils.setField(obj, fieldCell.getField(), stream.collect(Collectors.toList()));
@@ -130,9 +138,9 @@ public class ExcelReaderUtils {
                 } else {
                     if (!Objects.equals(fieldCell.getStartCellIndex(), fieldCell.getEndCellIndex()))
                         throw new RuntimeException("该数据类型不支持多列");
-                    Cell cell = row.getCell(fieldCell.getStartCellIndex());
-                    if (cell == null) continue;
-                    ObjectUtils.setField(obj, fieldCell.getField(), getValue(typeClazz, cell, fieldCell.getFormatter()));
+                    ObjectUtils.setField(obj, fieldCell.getField(),
+                            getValue(typeClazz, sheet, rowIndex, fieldCell.getStartCellIndex(),
+                                    fieldCell.getFormatter()));
                 }
             }
             return obj;
@@ -141,7 +149,8 @@ public class ExcelReaderUtils {
     }
 
     public static List<HeaderCell> getHeaders(Sheet sheet, boolean isSingle, IExcelReaderListener doExcel) {
-        if (sheet == null) throw new RuntimeException("表格数据不能为空");
+        if (sheet == null)
+            throw new RuntimeException("表格数据不能为空");
         int startHeaderNumber;
         int endHeaderNumber;
         if (doExcel != null) {
@@ -151,12 +160,17 @@ public class ExcelReaderUtils {
             startHeaderNumber = 0;
             endHeaderNumber = 0;
         }
-        if (startHeaderNumber < 0) throw new RuntimeException("表头开始行数不正确");
-        if (endHeaderNumber < 0) throw new RuntimeException("表头行数不能小于0");
+        if (startHeaderNumber < 0)
+            throw new RuntimeException("表头开始行数不正确");
+        if (endHeaderNumber < 0)
+            throw new RuntimeException("表头行数不能小于0");
 
-        List<CellRangeAddress> mergedRegionList = sheet.getMergedRegions().stream().filter(it -> it.getFirstRow() <= endHeaderNumber).collect(Collectors.toList());
-        List<HeaderCell> headerCellList = getHeaderCellList(sheet, startHeaderNumber, endHeaderNumber, mergedRegionList);
-        if (!isSingle) return headerCellList;
+        List<CellRangeAddress> mergedRegionList = sheet.getMergedRegions().stream()
+                .filter(it -> it.getFirstRow() <= endHeaderNumber).collect(Collectors.toList());
+        List<HeaderCell> headerCellList = getHeaderCellList(sheet, startHeaderNumber, endHeaderNumber,
+                mergedRegionList);
+        if (!isSingle)
+            return headerCellList;
         List<HeaderCell> finalHeaderCellList;
         if (endHeaderNumber - startHeaderNumber > 1) {
 
@@ -164,46 +178,59 @@ public class ExcelReaderUtils {
             int endCellIndex = headerCellList.stream().mapToInt(HeaderCell::getEndCellIndex).max().orElse(0);
 
             finalHeaderCellList = IntStream.range(startCellIndex, endCellIndex + 1).mapToObj(index -> {
-                List<HeaderCell> list = headerCellList.stream().filter(it -> it.getStartCellIndex() <= index && it.getEndCellIndex() >= index).sorted(Comparator.comparing(HeaderCell::getRowIndex)).collect(Collectors.toList());
+                List<HeaderCell> list = headerCellList.stream()
+                        .filter(it -> it.getStartCellIndex() <= index && it.getEndCellIndex() >= index)
+                        .sorted(Comparator.comparing(HeaderCell::getRowIndex)).collect(Collectors.toList());
 
-                if (CollectionUtils.isEmpty(list)) return null;
-                if (list.size() == 1) return list.get(0);
+                if (CollectionUtils.isEmpty(list))
+                    return null;
+                if (list.size() == 1)
+                    return list.get(0);
                 else {
-                    String cellValue = list.stream().map(it -> it.getCellValue() == null ? "" : it.getCellValue().toString()).collect(Collectors.joining("-"));
+                    String cellValue = list.stream()
+                            .map(it -> it.getCellValue() == null ? "" : it.getCellValue().toString())
+                            .collect(Collectors.joining("-"));
                     HeaderCell last = list.get(list.size() - 1);
                     last.setCellValue(cellValue);
                     return last;
                 }
             }).collect(Collectors.toList());
-        } else finalHeaderCellList = headerCellList;
+        } else
+            finalHeaderCellList = headerCellList;
         return finalHeaderCellList;
     }
 
-    public static List<Map<String, Object>> doMap(Sheet sheet, List<HeaderCell> headerCellList, IExcelReaderListener doExcel) {
-        if (sheet == null) throw new RuntimeException("表格数据不能为空");
-        if (CollectionUtils.isEmpty(headerCellList)) throw new RuntimeException("表头数据不能为空");
-        headerCellList.sort(Comparator.comparing(HeaderCell::getStartCellIndex).thenComparing(HeaderCell::getEndCellIndex));
+    public static List<Map<String, Object>> doMap(Sheet sheet, List<HeaderCell> headerCellList,
+                                                  IExcelReaderListener doExcel) {
+        if (sheet == null)
+            throw new RuntimeException("表格数据不能为空");
+        if (CollectionUtils.isEmpty(headerCellList))
+            throw new RuntimeException("表头数据不能为空");
+        headerCellList
+                .sort(Comparator.comparing(HeaderCell::getStartCellIndex).thenComparing(HeaderCell::getEndCellIndex));
         int headerNumber;
         if (doExcel != null) {
             headerNumber = doExcel.headerNumber(sheet);
         } else {
             headerNumber = 0;
         }
-        if (headerNumber < 0) throw new RuntimeException("表头行数不能小于0");
+        if (headerNumber < 0)
+            throw new RuntimeException("表头行数不能小于0");
 
         return IntStream.range(headerNumber, sheet.getLastRowNum() + 1).mapToObj(rowIndex -> {
             Row row = sheet.getRow(rowIndex);
-            if (doExcel != null && doExcel.isFooter(row)) return null;
+            if (doExcel != null && doExcel.isFooter(row))
+                return null;
             Map<String, Object> map = new LinkedHashMap<>();
             for (HeaderCell headerCell : headerCellList) {
                 Object obj;
                 if (headerCell.getStartCellIndex() == headerCell.getEndCellIndex()) {
-                    obj = getCellValue(row.getCell(headerCell.getStartCellIndex()));
+                    obj = getCellValueWithMergedRegion(sheet, rowIndex, headerCell.getStartCellIndex());
                 } else {
-                    obj = IntStream.range(headerCell.getStartCellIndex(), headerCell.getEndCellIndex() + 1).mapToObj(cellIndex -> {
-                        Cell cell = row.getCell(cellIndex);
-                        return getCellValue(cell);
-                    }).collect(Collectors.toList());
+                    obj = IntStream.range(headerCell.getStartCellIndex(), headerCell.getEndCellIndex() + 1)
+                            .mapToObj(cellIndex -> {
+                                return getCellValueWithMergedRegion(sheet, rowIndex, cellIndex);
+                            }).collect(Collectors.toList());
                 }
                 map.put(headerCell.getCellValue().toString(), obj);
             }
@@ -212,31 +239,36 @@ public class ExcelReaderUtils {
     }
 
     public static List<Map<String, Object>> doMap(Sheet sheet, IExcelReaderListener doExcel) {
-        if (sheet == null) throw new RuntimeException("表格数据不能为空");
+        if (sheet == null)
+            throw new RuntimeException("表格数据不能为空");
         List<HeaderCell> headerCellList = getHeaders(sheet, true, doExcel);
-        if (CollectionUtils.isEmpty(headerCellList)) throw new RuntimeException("表头数据不能为空");
-        headerCellList.sort(Comparator.comparing(HeaderCell::getStartCellIndex).thenComparing(HeaderCell::getEndCellIndex));
+        if (CollectionUtils.isEmpty(headerCellList))
+            throw new RuntimeException("表头数据不能为空");
+        headerCellList
+                .sort(Comparator.comparing(HeaderCell::getStartCellIndex).thenComparing(HeaderCell::getEndCellIndex));
         int headerNumber;
         if (doExcel != null) {
             headerNumber = doExcel.headerNumber(sheet);
         } else {
             headerNumber = 0;
         }
-        if (headerNumber < 0) throw new RuntimeException("表头行数不能小于0");
+        if (headerNumber < 0)
+            throw new RuntimeException("表头行数不能小于0");
 
         return IntStream.range(headerNumber, sheet.getLastRowNum() + 1).mapToObj(rowIndex -> {
             Row row = sheet.getRow(rowIndex);
-            if (doExcel != null && doExcel.isFooter(row)) return null;
+            if (doExcel != null && doExcel.isFooter(row))
+                return null;
             Map<String, Object> map = new LinkedHashMap<>();
             for (HeaderCell headerCell : headerCellList) {
                 Object obj;
                 if (headerCell.getStartCellIndex() == headerCell.getEndCellIndex()) {
-                    obj = getCellValue(row.getCell(headerCell.getStartCellIndex()));
+                    obj = getCellValueWithMergedRegion(sheet, rowIndex, headerCell.getStartCellIndex());
                 } else {
-                    obj = IntStream.range(headerCell.getStartCellIndex(), headerCell.getEndCellIndex() + 1).mapToObj(cellIndex -> {
-                        Cell cell = row.getCell(cellIndex);
-                        return getCellValue(cell);
-                    }).collect(Collectors.toList());
+                    obj = IntStream.range(headerCell.getStartCellIndex(), headerCell.getEndCellIndex() + 1)
+                            .mapToObj(cellIndex -> {
+                                return getCellValueWithMergedRegion(sheet, rowIndex, cellIndex);
+                            }).collect(Collectors.toList());
                 }
                 map.put(headerCell.getCellValue().toString(), obj);
             }
@@ -244,14 +276,17 @@ public class ExcelReaderUtils {
         }).collect(Collectors.toList());
     }
 
-    private static List<FieldCell> getFieldCells(Class<?> clazz, Sheet sheet, Integer startHeaderNumber, Integer endHeaderNumber) {
+    private static List<FieldCell> getFieldCells(Class<?> clazz, Sheet sheet, Integer startHeaderNumber,
+                                                 Integer endHeaderNumber) {
         Field[] fields = clazz.getDeclaredFields();
         return Arrays.stream(fields).map(field -> {
             FieldCell fieldCell = new FieldCell();
             fieldCell.setField(field);
-            if (!field.isAnnotationPresent(ExcelReader.class)) return fieldCell;
+            if (!field.isAnnotationPresent(ExcelReader.class))
+                return fieldCell;
             ExcelReader annotation = field.getAnnotation(ExcelReader.class);
-            if (annotation == null) return fieldCell;
+            if (annotation == null)
+                return fieldCell;
             if (annotation.formatter() != DefaultExcelReaderFormatter.class) {
                 try {
                     fieldCell.setFormatter(annotation.formatter().getDeclaredConstructor().newInstance());
@@ -279,11 +314,14 @@ public class ExcelReaderUtils {
                 List<HeaderCell> headerCellList;
                 List<CellRangeAddress> mergedRegionList;
                 if (sheet != null) {
-                    mergedRegionList = sheet.getMergedRegions().stream().filter(it -> it.getFirstRow() <= endHeaderNumber).collect(Collectors.toList());
+                    mergedRegionList = sheet.getMergedRegions().stream()
+                            .filter(it -> it.getFirstRow() <= endHeaderNumber).collect(Collectors.toList());
                     headerCellList = getHeaderCellList(sheet, startHeaderNumber, endHeaderNumber, mergedRegionList);
-                } else headerCellList = null;
+                } else
+                    headerCellList = null;
                 // 判断名称
-                if (headerCellList == null) throw new RuntimeException("无法解析表头数据");
+                if (headerCellList == null)
+                    throw new RuntimeException("无法解析表头数据");
                 HeaderCell tmpHeaderCell = null;
                 for (int i = 0; i < cellNames.length; i++) {
                     String name = cellNames[i];
@@ -292,9 +330,12 @@ public class ExcelReaderUtils {
                         // 多表头的情况，且父表头已获取到数据时
                         if (finalTmpHeaderCell != null) {
                             // 判断子表头肯定在父表头的下一行
-                            if (finalTmpHeaderCell.getRowIndex() >= it.getRowIndex()) return false;
+                            if (finalTmpHeaderCell.getRowIndex() >= it.getRowIndex())
+                                return false;
                             // 判断子表头列下标需在父表头的内部
-                            return finalTmpHeaderCell.getStartCellIndex() <= it.getStartCellIndex() && finalTmpHeaderCell.getEndCellIndex() >= it.getEndCellIndex() && Objects.equals(name, it.getCellValue());
+                            return finalTmpHeaderCell.getStartCellIndex() <= it.getStartCellIndex()
+                                    && finalTmpHeaderCell.getEndCellIndex() >= it.getEndCellIndex()
+                                    && Objects.equals(name, it.getCellValue());
                         }
                         return Objects.equals(name, it.getCellValue());
                     }).collect(Collectors.toList());
@@ -321,7 +362,13 @@ public class ExcelReaderUtils {
                             throw new RuntimeException("表头过于复杂，推荐使用 @ExcelValue(index = ?) 方式处理数据");
                         } else {
                             // 过滤掉有父表头的数据
-                            list = list.stream().filter(it -> headerCellList.stream().filter(headerCell -> headerCell.getRowIndex() != it.getRowIndex() && headerCell.getStartCellIndex() <= it.getStartCellIndex() && headerCell.getEndCellIndex() >= it.getEndCellIndex()).count() == 1).collect(Collectors.toList());
+                            list = list.stream()
+                                    .filter(it -> headerCellList.stream()
+                                            .filter(headerCell -> headerCell.getRowIndex() != it.getRowIndex()
+                                                    && headerCell.getStartCellIndex() <= it.getStartCellIndex()
+                                                    && headerCell.getEndCellIndex() >= it.getEndCellIndex())
+                                            .count() == 1)
+                                    .collect(Collectors.toList());
                             if (CollectionUtils.isEmpty(list))
                                 // emmm 表头数据重复？
                                 throw new RuntimeException("表头过于复杂，推荐使用 @ExcelValue(index = ?) 方式处理数据");
@@ -346,27 +393,37 @@ public class ExcelReaderUtils {
         }).collect(Collectors.toList());
     }
 
-    private static List<HeaderCell> getHeaderCellList(Sheet sheet, Integer startHeaderNumber, Integer endHeaderNumber, List<CellRangeAddress> mergedRegionList) {
-        if (startHeaderNumber >= endHeaderNumber) return Collections.emptyList();
+    private static List<HeaderCell> getHeaderCellList(Sheet sheet, Integer startHeaderNumber, Integer endHeaderNumber,
+                                                      List<CellRangeAddress> mergedRegionList) {
+        if (startHeaderNumber >= endHeaderNumber)
+            return Collections.emptyList();
 
         return IntStream.range(startHeaderNumber, endHeaderNumber).mapToObj(rowIndex -> {
             Row row = sheet.getRow(rowIndex);
             return IntStream.range(0, row.getLastCellNum()).mapToObj(cellIndex -> {
                 Cell cell = row.getCell(cellIndex);
                 Object cellValue = getCellValue(cell);
-                CellRangeAddress cellAddresses = mergedRegionList.stream().filter(range -> range.getFirstRow() <= rowIndex && range.getLastRow() >= rowIndex && range.getFirstColumn() <= cellIndex && range.getLastColumn() >= cellIndex).findFirst().orElse(null);
+                CellRangeAddress cellAddresses = mergedRegionList.stream()
+                        .filter(range -> range.getFirstRow() <= rowIndex && range.getLastRow() >= rowIndex
+                                && range.getFirstColumn() <= cellIndex && range.getLastColumn() >= cellIndex)
+                        .findFirst().orElse(null);
                 if (cellAddresses != null) {
-                    if (Objects.equals(cellAddresses.getFirstRow(), rowIndex) && Objects.equals(cellAddresses.getFirstColumn(), cellIndex))
+                    if (Objects.equals(cellAddresses.getFirstRow(), rowIndex)
+                            && Objects.equals(cellAddresses.getFirstColumn(), cellIndex))
                         return new HeaderCell(cellValue, rowIndex, cellIndex, cellAddresses.getLastColumn());
-                    else return null;
-                } else return new HeaderCell(cellValue, rowIndex, cellIndex, cellIndex);
+                    else
+                        return null;
+                } else
+                    return new HeaderCell(cellValue, rowIndex, cellIndex, cellIndex);
             }).filter(it -> it != null && it.getCellValue() != null).collect(Collectors.toList());
         }).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     public static Object getValue(Class<?> clazz, Cell cell, IExcelReaderFormatter<?> formatter) {
-        if (cell == null) return null;
-        if (formatter != null) return formatter.format(cell);
+        if (cell == null)
+            return null;
+        if (formatter != null)
+            return formatter.format(cell);
         if (clazz.equals(String.class)) {
             Object object = getCellValue(cell);
             return object == null ? null : object.toString();
@@ -374,31 +431,84 @@ public class ExcelReaderUtils {
         if (Number.class.isAssignableFrom(clazz)) {
             try {
                 double value = cell.getNumericCellValue();
-                if ((clazz.equals(Integer.class) || clazz.equals(Long.class)) && (String.valueOf(value).matches(".*\\.\\d*[1-9]+\\d*$")))
+                if ((clazz.equals(Integer.class) || clazz.equals(Long.class))
+                        && (String.valueOf(value).matches(".*\\.\\d*[1-9]+\\d*$")))
                     throw new RuntimeException("当前数据是浮点类型");
                 BigDecimal cellValue = BigDecimal.valueOf(value);
-                if (clazz.equals(Integer.class)) return cellValue.intValue();
-                if (clazz.equals(Double.class)) return cellValue.doubleValue();
-                if (clazz.equals(Float.class)) return cellValue.floatValue();
-                if (clazz.equals(Long.class)) return cellValue.longValue();
+                if (clazz.equals(Integer.class))
+                    return cellValue.intValue();
+                if (clazz.equals(Double.class))
+                    return cellValue.doubleValue();
+                if (clazz.equals(Float.class))
+                    return cellValue.floatValue();
+                if (clazz.equals(Long.class))
+                    return cellValue.longValue();
             } catch (IllegalStateException e) {
-                if (!Objects.equals(CellType.STRING, cell.getCellType())) throw e;
+                if (!Objects.equals(CellType.STRING, cell.getCellType()))
+                    throw e;
                 String cellValue = cell.getStringCellValue();
-                if (StringUtils.isEmpty(cellValue)) return null;
-                if (clazz.equals(Integer.class)) return Integer.parseInt(cellValue);
-                if (clazz.equals(Double.class)) return Double.parseDouble(cellValue);
-                if (clazz.equals(Float.class)) return Float.parseFloat(cellValue);
-                if (clazz.equals(Long.class)) return Long.parseLong(cellValue);
+                if (StringUtils.isEmpty(cellValue))
+                    return null;
+                if (clazz.equals(Integer.class))
+                    return Integer.parseInt(cellValue);
+                if (clazz.equals(Double.class))
+                    return Double.parseDouble(cellValue);
+                if (clazz.equals(Float.class))
+                    return Float.parseFloat(cellValue);
+                if (clazz.equals(Long.class))
+                    return Long.parseLong(cellValue);
                 return null;
             }
         }
-        if (clazz.equals(Date.class)) return new SimpleDateExcelReaderFormatter().format(cell);
-        if (clazz.equals(Boolean.class)) return cell.getBooleanCellValue();
+        if (clazz.equals(Date.class))
+            return new SimpleDateExcelReaderFormatter().format(cell);
+        if (clazz.equals(Boolean.class))
+            return cell.getBooleanCellValue();
         throw new RuntimeException("暂不支持该格式");
     }
 
+    /**
+     * 获取单元格的值，支持合并单元格
+     *
+     * @param clazz     目标类型
+     * @param sheet     工作表
+     * @param rowIndex  行索引
+     * @param cellIndex 列索引
+     * @param formatter 格式化器
+     * @return 转换后的值
+     */
+    public static Object getValue(Class<?> clazz, Sheet sheet, int rowIndex, int cellIndex,
+                                  IExcelReaderFormatter<?> formatter) {
+        Row row = sheet.getRow(rowIndex);
+        if (row == null)
+            return null;
+
+        Cell cell = row.getCell(cellIndex);
+        Object value = null;
+        if (cell != null) {
+            value = getCellValue(cell);
+        }
+
+        // 如果当前单元格没有值，检查是否在合并单元格范围内
+        if (value == null) {
+            for (CellRangeAddress mergedRegion : sheet.getMergedRegions()) {
+                if (mergedRegion.isInRange(rowIndex, cellIndex)) {
+                    // 获取合并单元格的第一个单元格
+                    Row firstRow = sheet.getRow(mergedRegion.getFirstRow());
+                    if (firstRow != null) {
+                        cell = firstRow.getCell(mergedRegion.getFirstColumn());
+                        break;
+                    }
+                }
+            }
+        }
+
+        return getValue(clazz, cell, formatter);
+    }
+
     public static Object getCellValue(Cell cell) {
-        if (cell == null) return null;
+        if (cell == null)
+            return null;
 
         Object obj;
         switch (cell.getCellType()) {
@@ -406,8 +516,10 @@ public class ExcelReaderUtils {
                 obj = cell.getStringCellValue();
                 break;
             case NUMERIC:
-                if (DateUtil.isCellDateFormatted(cell)) obj = cell.getDateCellValue();
-                else obj = cell.getNumericCellValue();
+                if (DateUtil.isCellDateFormatted(cell))
+                    obj = cell.getDateCellValue();
+                else
+                    obj = cell.getNumericCellValue();
                 break;
             case BOOLEAN:
                 obj = cell.getBooleanCellValue();
@@ -422,6 +534,41 @@ public class ExcelReaderUtils {
         }
 
         return obj;
+    }
+
+    /**
+     * 获取单元格的值，支持合并单元格
+     *
+     * @param sheet     工作表
+     * @param rowIndex  行索引
+     * @param cellIndex 列索引
+     * @return 单元格值
+     */
+    private static Object getCellValueWithMergedRegion(Sheet sheet, int rowIndex, int cellIndex) {
+        Row row = sheet.getRow(rowIndex);
+        if (row == null)
+            return null;
+
+        Cell cell = row.getCell(cellIndex);
+        Object value = getCellValue(cell);
+
+        // 如果当前单元格有值，直接返回
+        if (value != null)
+            return value;
+
+        // 检查是否在合并单元格范围内
+        for (CellRangeAddress mergedRegion : sheet.getMergedRegions()) {
+            if (mergedRegion.isInRange(rowIndex, cellIndex)) {
+                // 获取合并单元格的第一个单元格的值
+                Row firstRow = sheet.getRow(mergedRegion.getFirstRow());
+                if (firstRow != null) {
+                    Cell firstCell = firstRow.getCell(mergedRegion.getFirstColumn());
+                    return getCellValue(firstCell);
+                }
+            }
+        }
+
+        return null;
     }
 
 }
