@@ -1,41 +1,41 @@
 # Excel Plus
 
-基于 Apache POI 库的 Excel 读写工具，提供简单易用的注解配置方式，支持复杂 Excel 操作。
+An annotation-based Excel reading and writing utility built on Apache POI, providing simple and easy-to-use configuration for complex Excel operations.
 
-## 特性
+## Features
 
-### Excel 读取
+### Excel Reading
 
-- **单对象读取**：通过坐标精确定位读取单元格数据
-- **列表读取**：支持通过索引或表头名称批量读取数据
-- **多表头支持**：自动处理复杂的多级表头结构
-- **合并单元格**：智能识别并处理合并单元格
-- **自定义格式化**：支持自定义数据格式化器
-- **类型自动转换**：自动转换常见数据类型
+- **Single Object Reading**: Precisely read cell data through coordinate positioning
+- **List Reading**: Batch read data through index or header name
+- **Multi-Header Support**: Automatically handle complex multi-level header structures
+- **Merged Cell Support**: Intelligently recognize and process merged cells
+- **Custom Formatting**: Support for custom data formatters
+- **Automatic Type Conversion**: Automatically convert common data types
 
-### Excel 写入
+### Excel Writing
 
-- **坐标写入**：精确控制数据写入位置
-- **对象写入**：将对象数据映射到 Excel
-- **列表写入**：批量写入列表数据，自动生成表头
-- **分页写入**：支持大数据量分页写入，避免内存溢出
-- **复杂表格**：支持多表头、表尾、合并单元格等复杂结构
-- **样式配置**：支持单元格样式、边框、对齐方式等配置
+- **Coordinate Writing**: Precisely control data writing position
+- **Object Writing**: Map object data to Excel
+- **List Writing**: Batch write list data with automatic header generation
+- **Paginated Writing**: Support for large data pagination to avoid memory overflow
+- **Complex Tables**: Support multi-headers, footers, merged cells and other complex structures
+- **Style Configuration**: Support cell styles, borders, alignment and other configurations
 
-## 快速开始
+## Quick Start
 
-### 安装
+### Installation
 
 #### Gradle
 
 ```gradle
 repositories {
-    // 使用 Maven Central Snapshots
+    // Use Maven Central Snapshots
     maven {
         url = uri("https://central.sonatype.com/repository/maven-snapshots/")
     }
 
-    // 或使用 GitHub Packages
+    // Or use GitHub Packages
     // maven {
     //     url = uri("https://maven.pkg.github.com/ericyl-studio/excel-plus")
     //     credentials {
@@ -53,7 +53,7 @@ dependencies {
 #### Maven
 
 ```xml
-<!-- 配置仓库 -->
+<!-- Configure repository -->
 <repositories>
     <repository>
         <id>sonatype-snapshots</id>
@@ -64,7 +64,7 @@ dependencies {
     </repository>
 </repositories>
 
-<!-- 添加依赖 -->
+<!-- Add dependency -->
 <dependency>
     <groupId>com.ericyl.excel</groupId>
     <artifactId>excel-plus</artifactId>
@@ -72,92 +72,92 @@ dependencies {
 </dependency>
 ```
 
-### 基本使用
+### Basic Usage
 
-#### 1. Excel 读取
+#### 1. Excel Reading
 
-##### 单对象读取
+##### Single Object Reading
 
 ```java
-// 定义数据模型
+// Define data model
 public class Report {
-    @ExcelReader(value = "A1")  // 读取 A1 单元格
+    @ExcelReader(value = "A1")  // Read cell A1
     private String title;
 
-    @ExcelReader(value = "B2")  // 读取 B2 单元格
+    @ExcelReader(value = "B2")  // Read cell B2
     private Double amount;
 
     // getter/setter...
 }
 
-// 读取数据
+// Read data
 Workbook workbook = WorkbookFactory.create(new File("report.xlsx"));
 Sheet sheet = workbook.getSheetAt(0);
 Report report = ExcelReaderUtils.doIt(sheet, Report.class);
 ```
 
-##### 列表读取（通过索引）
+##### List Reading (By Index)
 
 ```java
 public class User {
-    @ExcelReader(index = 0)  // 第一列
+    @ExcelReader(index = 0)  // First column
     private String name;
 
-    @ExcelReader(index = 1)  // 第二列
+    @ExcelReader(index = 1)  // Second column
     private Integer age;
 
-    @ExcelReader(index = 2, formatter = DateFormatter.class)  // 自定义格式化
+    @ExcelReader(index = 2, formatter = DateFormatter.class)  // Custom formatting
     private Date birthDate;
 
     // getter/setter...
 }
 
-// 读取数据
+// Read data
 List<User> users = ExcelReaderUtils.doList(sheet, User.class, null);
 ```
 
-##### 列表读取（通过表头）
+##### List Reading (By Header)
 
 ```java
 public class Product {
-    @ExcelReader(name = "产品名称")
+    @ExcelReader(name = "Product Name")
     private String name;
 
-    @ExcelReader(name = {"价格信息", "单价"})  // 多级表头
+    @ExcelReader(name = {"Price Info", "Unit Price"})  // Multi-level header
     private BigDecimal price;
 
-    @ExcelReader(name = {"价格信息", "折扣"})
+    @ExcelReader(name = {"Price Info", "Discount"})
     private Double discount;
 
     // getter/setter...
 }
 
-// 自定义读取行为
+// Custom reading behavior
 IExcelReaderListener listener = new IExcelReaderListener() {
     @Override
     public int endHeaderNumber(Sheet sheet) {
-        return 3;  // 表头结束行号是第3行
+        return 3;  // Header ends at row 3
     }
 
     @Override
     public boolean isFooter(Row row) {
-        // 判断是否为表尾（如合计行）
+        // Determine if it's a footer (like a total row)
         Cell firstCell = row.getCell(0);
-        return firstCell != null && "合计".equals(firstCell.getStringCellValue());
+        return firstCell != null && "Total".equals(firstCell.getStringCellValue());
     }
 };
 
 List<Product> products = ExcelReaderUtils.doList(sheet, Product.class, listener);
 ```
 
-#### 2. Excel 写入
+#### 2. Excel Writing
 
-##### 单对象写入
+##### Single Object Writing
 
 ```java
 public class Summary {
     @ExcelWriter(value = "A1")
-    private String title = "月度报表";
+    private String title = "Monthly Report";
 
     @ExcelWriter(value = "B2")
     private Date reportDate = new Date();
@@ -166,27 +166,27 @@ public class Summary {
     private BigDecimal total = new BigDecimal("10000.50");
 }
 
-// 写入数据
+// Write data
 Workbook workbook = new XSSFWorkbook();
 Sheet sheet = workbook.createSheet("Summary");
 Summary summary = new Summary();
 ExcelWriterUtils.obj2Excel(workbook, sheet, summary);
 ```
 
-##### 列表写入
+##### List Writing
 
 ```java
 public class Employee {
-    @ExcelWriter(name = "员工姓名", index = 0, width = 4000)
+    @ExcelWriter(name = "Employee Name", index = 0, width = 4000)
     private String name;
 
-    @ExcelWriter(name = "部门", index = 1, width = 3000)
+    @ExcelWriter(name = "Department", index = 1, width = 3000)
     private String department;
 
-    @ExcelWriter(name = "入职日期", index = 2, formatter = DateFormatter.class)
+    @ExcelWriter(name = "Join Date", index = 2, formatter = DateFormatter.class)
     private Date joinDate;
 
-    @ExcelWriter(name = "薪资", index = 3,
+    @ExcelWriter(name = "Salary", index = 3,
                  horizontalAlignment = HorizontalAlignment.RIGHT,
                  border = @ExcelWriterBorder(
                      value = {BorderValue.ALL},
@@ -195,68 +195,68 @@ public class Employee {
     private BigDecimal salary;
 }
 
-// 写入数据
+// Write data
 List<Employee> employees = getEmployees();
 ExcelWriterUtils.list2Excel(workbook, sheet, employees, Employee.class);
 
-// 保存文件
+// Save file
 String filePath = ExcelWriterUtils.toFile("export", workbook);
 ```
 
-##### 分页写入（大数据量）
+##### Paginated Writing (Large Datasets)
 
 ```java
-// 实现数据分页获取
+// Implement data pagination retrieval
 IExcelWriterListener<List<Order>> listener = new IExcelWriterListener<List<Order>>() {
     @Override
     public List<Order> doSomething(int pageNumber, int pageSize) {
-        // 从数据库分页查询
+        // Query database with pagination
         return orderService.findByPage(pageNumber, pageSize);
     }
 };
 
-// 分页写入，每页1000条，共100页
+// Paginated writing, 1000 records per page, 100 pages total
 ExcelWriterUtils.list2Excel(workbook, sheet, 100, 1000, Order.class, listener);
 ```
 
-##### 复杂表格写入
+##### Complex Table Writing
 
 ```java
-// 构建复杂表格结构
+// Build complex table structure
 ExcelTable table = new ExcelTable();
 
-// 设置多级表头
+// Set multi-level headers
 List<List<ExcelColumn>> headers = new ArrayList<>();
-// 第一行表头
+// First row header
 List<ExcelColumn> header1 = Arrays.asList(
-    new ExcelColumn("基本信息", 1, 3),  // 跨3列
-    new ExcelColumn("成绩信息", 1, 4)   // 跨4列
+    new ExcelColumn("Basic Info", 1, 3),  // Span 3 columns
+    new ExcelColumn("Score Info", 1, 4)   // Span 4 columns
 );
-// 第二行表头
+// Second row header
 List<ExcelColumn> header2 = Arrays.asList(
-    new ExcelColumn("姓名"),
-    new ExcelColumn("学号"),
-    new ExcelColumn("班级"),
-    new ExcelColumn("语文"),
-    new ExcelColumn("数学"),
-    new ExcelColumn("英语"),
-    new ExcelColumn("总分")
+    new ExcelColumn("Name"),
+    new ExcelColumn("Student ID"),
+    new ExcelColumn("Class"),
+    new ExcelColumn("Chinese"),
+    new ExcelColumn("Math"),
+    new ExcelColumn("English"),
+    new ExcelColumn("Total")
 );
 headers.add(header1);
 headers.add(header2);
 table.setHeaders(headers);
 
-// 设置数据内容
+// Set data content
 List<List<ExcelColumn>> data = getData();
 table.setColumns(data);
 
-// 写入表格
+// Write table
 ExcelWriterUtils.table2Excel(workbook, sheet, table);
 ```
 
-### 自定义格式化器
+### Custom Formatters
 
-#### 读取格式化器
+#### Read Formatter
 
 ```java
 public class DateExcelReaderFormatter implements IExcelReaderFormatter<Date> {
@@ -272,7 +272,7 @@ public class DateExcelReaderFormatter implements IExcelReaderFormatter<Date> {
             try {
                 return sdf.parse(cell.getStringCellValue());
             } catch (ParseException e) {
-                throw new RuntimeException("日期格式错误", e);
+                throw new RuntimeException("Date format error", e);
             }
         }
         return null;
@@ -280,59 +280,64 @@ public class DateExcelReaderFormatter implements IExcelReaderFormatter<Date> {
 }
 ```
 
-#### 写入格式化器
+#### Write Formatter
 
 ```java
 public class CurrencyExcelWriterFormatter implements IExcelWriterFormatter {
     @Override
     public Object format(Object data) {
         if (data instanceof Number) {
-            return String.format("¥%.2f", ((Number) data).doubleValue());
+            return String.format("$%.2f", ((Number) data).doubleValue());
         }
         return data;
     }
 }
 ```
 
-## API 文档
+## API Documentation
 
-### ExcelReaderUtils 主要方法
+### ExcelReaderUtils Main Methods
 
-| 方法                                                                       | 说明             |
-| -------------------------------------------------------------------------- | ---------------- |
-| `doIt(Sheet sheet, Class<T> clazz)`                                        | 读取单个对象数据 |
-| `doList(Sheet sheet, Class<T> clazz, IExcelReaderListener listener)`       | 读取列表数据     |
-| `doMap(Sheet sheet, IExcelReaderListener listener)`                        | 读取为 Map 格式  |
-| `getHeaders(Sheet sheet, boolean isSingle, IExcelReaderListener listener)` | 获取表头信息     |
+| Method                                                                     | Description             |
+| -------------------------------------------------------------------------- | ----------------------- |
+| `doIt(Sheet sheet, Class<T> clazz)`                                        | Read single object data |
+| `doList(Sheet sheet, Class<T> clazz, IExcelReaderListener listener)`       | Read list data          |
+| `doMap(Sheet sheet, IExcelReaderListener listener)`                        | Read as Map format      |
+| `getHeaders(Sheet sheet, boolean isSingle, IExcelReaderListener listener)` | Get header information  |
 
-### ExcelWriterUtils 主要方法
+### ExcelWriterUtils Main Methods
 
-| 方法                                                                                                                         | 说明         |
-| ---------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| `xy(Workbook workbook, Sheet sheet, String xy, Object obj)`                                                                  | 坐标方式写入 |
-| `obj2Excel(Workbook workbook, Sheet sheet, T obj)`                                                                           | 对象方式写入 |
-| `list2Excel(Workbook workbook, Sheet sheet, List<T> list, Class<T> clazz)`                                                   | 列表方式写入 |
-| `list2Excel(Workbook workbook, Sheet sheet, int page, int pageSize, Class<T> clazz, IExcelWriterListener<List<T>> listener)` | 分页方式写入 |
-| `table2Excel(Workbook workbook, Sheet sheet, ExcelTable table)`                                                              | 复杂表格写入 |
-| `toFile(String filePath, Workbook workbook)`                                                                                 | 保存到文件   |
+| Method                                                                                                                       | Description          |
+| ---------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| `xy(Workbook workbook, Sheet sheet, String xy, Object obj)`                                                                  | Write by coordinates |
+| `obj2Excel(Workbook workbook, Sheet sheet, T obj)`                                                                           | Write by object      |
+| `list2Excel(Workbook workbook, Sheet sheet, List<T> list, Class<T> clazz)`                                                   | Write by list        |
+| `list2Excel(Workbook workbook, Sheet sheet, int page, int pageSize, Class<T> clazz, IExcelWriterListener<List<T>> listener)` | Write by pagination  |
+| `table2Excel(Workbook workbook, Sheet sheet, ExcelTable table)`                                                              | Write complex table  |
+| `toFile(String filePath, Workbook workbook)`                                                                                 | Save to file         |
 
-## 注意事项
+## Best Practices
 
-1. **内存管理**：处理大文件时建议使用分页读写功能
-2. **类型转换**：自动类型转换仅支持常见类型，复杂类型需要自定义格式化器
-3. **性能优化**：大数据量写入时，建议使用 SXSSFWorkbook 代替 XSSFWorkbook
-4. **错误处理**：注意处理可能的运行时异常
+1. **Memory Management**: Use pagination reading/writing functionality when processing large files
+2. **Type Conversion**: Automatic type conversion only supports common types; complex types require custom formatters
+3. **Performance Optimization**: For large data writes, use SXSSFWorkbook instead of XSSFWorkbook
+4. **Error Handling**: Pay attention to possible runtime exceptions
 
-## 示例项目
+## Language Support
 
-更多使用示例请参考 `com.ericyl.excel.example` 包中的代码。
+- [English Documentation](README.md) (Current)
+- [中文文档](README_CN.md)
 
-## 依赖库
+## Example Code
 
-- [Lombok](https://github.com/projectlombok/lombok) - 简化 Java 代码
-- [Apache Commons](https://commons.apache.org) - 通用工具库
-- [Apache POI](https://poi.apache.org) - Excel 操作核心库
+For more usage examples, please refer to the code in the `com.ericyl.excel.example` package.
+
+## Dependencies
+
+- [Lombok](https://github.com/projectlombok/lombok) - Java code simplification
+- [Apache Commons](https://commons.apache.org) - Common utility library
+- [Apache POI](https://poi.apache.org) - Excel operation core library
 
 ## License
 
-本项目采用 Apache License 2.0 协议，详见 [LICENSE](LICENSE) 文件。
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
