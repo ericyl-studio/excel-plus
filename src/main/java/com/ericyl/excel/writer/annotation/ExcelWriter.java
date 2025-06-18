@@ -12,11 +12,11 @@ import java.lang.annotation.*;
  * <p>
  * 用于配置字段在Excel中的写入方式，包括位置、样式、格式化等。
  * 支持两种定位方式：
+ * </p>
  * <ul>
  * <li>坐标定位：通过value属性指定单元格坐标（如"A1"）</li>
  * <li>列表定位：通过index属性指定列索引，配合name属性设置表头名称</li>
  * </ul>
- * </p>
  * 
  * @author ericyl
  * @since 1.0

@@ -29,46 +29,18 @@ An annotation-based Excel reading and writing utility built on Apache POI, provi
 #### Gradle
 
 ```gradle
-repositories {
-    // Use Maven Central Snapshots
-    maven {
-        url = uri("https://central.sonatype.com/repository/maven-snapshots/")
-    }
-
-    // Or use GitHub Packages
-    // maven {
-    //     url = uri("https://maven.pkg.github.com/ericyl-studio/excel-plus")
-    //     credentials {
-    //         username = "GITHUB_USERNAME"
-    //         password = "GITHUB_TOKEN"
-    //     }
-    // }
-}
-
 dependencies {
-    implementation('com.ericyl.excel:excel-plus:0.1.15-SNAPSHOT')
+    implementation('com.ericyl.excel:excel-plus:0.1.16')
 }
 ```
 
 #### Maven
 
 ```xml
-<!-- Configure repository -->
-<repositories>
-    <repository>
-        <id>sonatype-snapshots</id>
-        <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-        <snapshots>
-            <enabled>true</enabled>
-        </snapshots>
-    </repository>
-</repositories>
-
-<!-- Add dependency -->
 <dependency>
     <groupId>com.ericyl.excel</groupId>
     <artifactId>excel-plus</artifactId>
-    <version>0.1.15-SNAPSHOT</version>
+    <version>0.1.16</version>
 </dependency>
 ```
 

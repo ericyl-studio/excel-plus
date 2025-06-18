@@ -29,46 +29,18 @@
 #### Gradle
 
 ```gradle
-repositories {
-    // 使用 Maven Central Snapshots
-    maven {
-        url = uri("https://central.sonatype.com/repository/maven-snapshots/")
-    }
-
-    // 或使用 GitHub Packages
-    // maven {
-    //     url = uri("https://maven.pkg.github.com/ericyl-studio/excel-plus")
-    //     credentials {
-    //         username = "GITHUB_USERNAME"
-    //         password = "GITHUB_TOKEN"
-    //     }
-    // }
-}
-
 dependencies {
-    implementation('com.ericyl.excel:excel-plus:0.1.15-SNAPSHOT')
+    implementation('com.ericyl.excel:excel-plus:0.1.16')
 }
 ```
 
 #### Maven
 
 ```xml
-<!-- 配置仓库 -->
-<repositories>
-    <repository>
-        <id>sonatype-snapshots</id>
-        <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-        <snapshots>
-            <enabled>true</enabled>
-        </snapshots>
-    </repository>
-</repositories>
-
-<!-- 添加依赖 -->
 <dependency>
     <groupId>com.ericyl.excel</groupId>
     <artifactId>excel-plus</artifactId>
-    <version>0.1.15-SNAPSHOT</version>
+    <version>0.1.16</version>
 </dependency>
 ```
 

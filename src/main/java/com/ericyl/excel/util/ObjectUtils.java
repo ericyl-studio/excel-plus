@@ -24,19 +24,20 @@ public class ObjectUtils {
      * 将Excel的列坐标（如 "A", "B", "AA", "AB"）转换为从1开始的数字索引。
      * 转换规则类似26进制，其中 A=1, B=2, ..., Z=26, AA=27, AB=28，以此类推。
      * </p>
+     * <p>
+     * 示例：
+     * </p>
      * 
-     * @param s Excel列坐标字符串（如 "A", "AA"）
-     * @return 对应的数字索引（从1开始）
-     * 
-     * @example
-     * 
-     *          <pre>
+     * <pre>
      * convertToNumber("A")  // 返回 1
      * convertToNumber("B")  // 返回 2
      * convertToNumber("Z")  // 返回 26
      * convertToNumber("AA") // 返回 27
      * convertToNumber("AB") // 返回 28
-     *          </pre>
+     * </pre>
+     * 
+     * @param s Excel列坐标字符串（如 "A", "AA"）
+     * @return 对应的数字索引（从1开始）
      */
     public static int convertToNumber(String s) {
         int result = 0;
@@ -113,6 +114,7 @@ public class ObjectUtils {
      * <p>
      * 通过反射检查对象的所有字段，判断对象是否为"空"。
      * 判断规则：
+     * </p>
      * <ul>
      * <li>对象本身为null，返回true</li>
      * <li>所有字段都为null，返回true</li>
@@ -120,6 +122,7 @@ public class ObjectUtils {
      * <li>Number类型字段值为0，视为空</li>
      * <li>其他类型字段为null，视为空</li>
      * </ul>
+     * <p>
      * 注意：尚未支持复杂子对象的递归判断
      * </p>
      * 
