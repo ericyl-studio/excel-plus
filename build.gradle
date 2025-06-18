@@ -1,13 +1,20 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'org.jreleaser' version '1.16.0'
 }
 
 group = 'com.ericyl.excel'
-version = '0.1.16-SNAPSHOT'
+version = '0.1.16'
 
 repositories {
     mavenCentral()
+}
+
+// 确保生成sources和javadoc JAR
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 publishing {
@@ -24,7 +31,7 @@ publishing {
                 licenses {
                     license {
                         name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
                 }
                 developers {
@@ -37,32 +44,72 @@ publishing {
                 scm {
                     connection = 'scm:git:git://github.com/ericyl-studio/excel-plus.git'
                     developerConnection = 'scm:git:ssh://github.com/ericyl-studio/excel-plus.git'
-                    url = 'http://github.com/ericyl-studio/excel-plus'
+                    url = 'https://github.com/ericyl-studio/excel-plus'
                 }
             }
         }
     }
 
     repositories {
-        // 新的Central Portal发布配置
         maven {
-            name = "CentralPortal"
-            // 对于正式版本
-            // url = "https://central.sonatype.com/api/v1/publisher"
-            // 对于SNAPSHOT版本
-            url = "https://central.sonatype.com/repository/maven-snapshots/"
-            credentials {
-                username = System.getenv("MAVEN_USERNAME")
-                password = System.getenv("MAVEN_PASSWORD")
+            url = layout.buildDirectory.dir('staging-deploy')
+        }
+    }
+}
+
+
+// JReleaser配置 - 直接处理Maven Central发布和签名
+jreleaser {
+    project {
+        name = 'excel-plus'
+        description = 'Excel Plus'
+        copyright = 'Ericyl Studio'
+        authors = ['Ericyl Studio']
+        license = 'Apache-2.0'
+
+        links {
+            homepage = 'https://github.com/ericyl-studio/excel-plus'
+            documentation = 'https://github.com/ericyl-studio/excel-plus'
+            license = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+        }
+
+        java {
+            groupId = 'com.ericyl.excel'
+            artifactId = 'excel-plus'
+            mainClass = ''
+        }
+    }
+
+    // GPG签名配置 - 使用环境变量
+    signing {
+        active = 'ALWAYS'
+        armored = true
+        publicKey = System.getenv('JRELEASER_GPG_PUBLIC_KEY')
+        secretKey = System.getenv('JRELEASER_GPG_SECRET_KEY')
+        passphrase = System.getenv('JRELEASER_GPG_PASSPHRASE')
+    }
+
+    // Maven Central发布配置
+    deploy {
+        maven {
+            mavenCentral {
+                sonatype {
+                    active = 'ALWAYS'
+                    url = 'https://central.sonatype.com/api/v1/publisher'
+                    username = System.getenv('MAVEN_USERNAME')
+                    password = System.getenv('MAVEN_PASSWORD')
+
+                    // 必需的staging目录配置
+                    stagingRepository('build/staging-deploy')
+                }
             }
         }
-        maven {
-            name = "GitHubPackages"
-            url = "https://maven.pkg.github.com/ericyl-studio/excel-plus"
-            credentials {
-                username = System.getenv("USERNAME")
-                password = System.getenv("TOKEN")
-            }
+    }
+
+    // 禁用GitHub发布
+    release {
+        github {
+            enabled = false
         }
     }
 }
