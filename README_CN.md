@@ -30,7 +30,7 @@
 
 ```gradle
 dependencies {
-    implementation('com.ericyl.excel:excel-plus:0.1.16')
+    implementation('com.ericyl.excel:excel-plus:0.1.17')
 }
 ```
 
@@ -297,7 +297,7 @@ public class CurrencyExcelWriterFormatter implements IExcelWriterFormatter {
 
 ## 示例项目
 
-更多使用示例请参考 `com.ericyl.excel.example` 包中的代码。
+更多使用示例请参考 `src/test/java/com/ericyl/excel` 目录中的代码。
 
 ## 依赖库
 

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.ericyl.excel'
-version = '0.1.16'
+version = '0.1.17'
 
 repositories {
     mavenCentral()
@@ -118,6 +118,8 @@ dependencies {
     // Lombok是一个注解处理器，只在编译时使用，不需要在运行时使用
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
     annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+    testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
+    testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
 
     // 这些依赖是库的API的一部分，会暴露给使用者
     api("org.apache.poi:poi:${poiVersion}")
@@ -136,4 +138,3 @@ dependencies {
 test {
     useJUnitPlatform()
 }
-

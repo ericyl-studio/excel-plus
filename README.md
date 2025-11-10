@@ -30,7 +30,7 @@ An annotation-based Excel reading and writing utility built on Apache POI, provi
 
 ```gradle
 dependencies {
-    implementation('com.ericyl.excel:excel-plus:0.1.16')
+    implementation('com.ericyl.excel:excel-plus:0.1.17')
 }
 ```
 
@@ -302,7 +302,7 @@ public class CurrencyExcelWriterFormatter implements IExcelWriterFormatter {
 
 ## Example Code
 
-For more usage examples, please refer to the code in the `com.ericyl.excel.example` package.
+For more usage examples, please refer to the code under `src/test/java/com/ericyl/excel`.
 
 ## Dependencies
 

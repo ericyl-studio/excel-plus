@@ -1,7 +1,5 @@
-package com.ericyl.excel.example;
+package com.ericyl.excel;
 
-import com.ericyl.excel.ExcelReaderUtils;
-import com.ericyl.excel.ExcelWriterUtils;
 import com.ericyl.excel.reader.IExcelReaderListener;
 import com.ericyl.excel.reader.model.HeaderCell;
 import com.ericyl.excel.writer.common.BorderValue;
@@ -228,62 +226,62 @@ public class Test {
                 add(new ArrayList<ExcelColumn>() {
                     {
                         add(new ExcelColumn("项目", "xm", 4, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER)
-                                .withBorder(new ExcelColumnBorder(new BorderValue[]{BorderValue.ALL},
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER)
+                                .setBorder(new ExcelColumnBorder(new BorderValue[]{BorderValue.ALL},
                                         BorderStyle.THIN, IndexedColors.BLACK)));
                         add(new ExcelColumn("支出", "zc", 3, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                     }
                 });
                 // 第二行表头
                 add(new ArrayList<ExcelColumn>() {
                     {
                         add(new ExcelColumn("科目编码", "kmbm", 3, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                         add(new ExcelColumn("科目名称", "kmmc", 1, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                         add(new ExcelColumn("小计", "xj", 1, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                         add(new ExcelColumn("基本支出", "jbzc", 1, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                         add(new ExcelColumn("项目支出", "mxzc", 1, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                     }
                 });
                 // 第三行表头（包含跨行）
                 add(new ArrayList<ExcelColumn>() {
                     {
                         add(new ExcelColumn("类", "l", 1, 2) // 跨2行
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER)
-                                .withBorder(new ExcelColumnBorder(new BorderValue[]{BorderValue.ALL},
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER)
+                                .setBorder(new ExcelColumnBorder(new BorderValue[]{BorderValue.ALL},
                                         BorderStyle.THIN, IndexedColors.BLACK)));
                         add(new ExcelColumn("款", "k", 1, 2) // 跨2行
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                         add(new ExcelColumn("项", "x", 1, 2) // 跨2行
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER)
-                                .withBorder(new ExcelColumnBorder(new BorderValue[]{BorderValue.ALL},
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER)
+                                .setBorder(new ExcelColumnBorder(new BorderValue[]{BorderValue.ALL},
                                         BorderStyle.THIN, IndexedColors.BLACK)));
                         add(new ExcelColumn("栏次", "lc", 1, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                         add(new ExcelColumn("1", "lc1", 1, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                         add(new ExcelColumn("2", "lc2", 1, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                         add(new ExcelColumn("3", "lc3", 1, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                     }
                 });
                 // 第四行表头
                 add(new ArrayList<ExcelColumn>() {
                     {
                         add(new ExcelColumn("合计", "hj", 1, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                         add(new ExcelColumn(0.0, "hj1", 1, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                         add(new ExcelColumn(0.1, "hj2", 1, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                         add(new ExcelColumn(0.2, "hj3", 1, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                     }
                 });
             }
@@ -295,15 +293,15 @@ public class Test {
                 add(new ArrayList<ExcelColumn>() {
                     {
                         add(new ExcelColumn("科目代码1", "kmdm", 3, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.LEFT));
+                                .setHorizontalAlignment(HorizontalAlignment.LEFT));
                         add(new ExcelColumn("科目名称1", "kmmc", 1, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.LEFT));
+                                .setHorizontalAlignment(HorizontalAlignment.LEFT));
                         add(new ExcelColumn(1.0, "xj", 1, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                         add(new ExcelColumn(2.0, "jbzc", 1, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                         add(new ExcelColumn(3.0, "xmzc", 1, 1)
-                                .withHorizontalAlignment(HorizontalAlignment.CENTER));
+                                .setHorizontalAlignment(HorizontalAlignment.CENTER));
                     }
                 });
             }

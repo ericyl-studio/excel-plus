@@ -1,4 +1,4 @@
-package com.ericyl.excel.example;
+package com.ericyl.excel;
 
 import com.ericyl.excel.reader.formatter.DateExcelReaderFormatter;
 

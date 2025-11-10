@@ -1,12 +1,20 @@
 package com.ericyl.excel.writer.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+import lombok.experimental.SuperBuilder;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 
 import java.util.Objects;
 
 @Data
+@Accessors(chain = true)
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ExcelColumn implements Comparable<ExcelColumn> {
     private String key;
     private Object data;
@@ -34,21 +42,6 @@ public class ExcelColumn implements Comparable<ExcelColumn> {
         this.rowspan = rowspan;
         this.verticalAlignment = VerticalAlignment.CENTER;
         this.key = key;
-    }
-
-    public ExcelColumn withHorizontalAlignment(HorizontalAlignment alignment) {
-        this.horizontalAlignment = alignment;
-        return this;
-    }
-
-    public ExcelColumn withVerticalAlignment(VerticalAlignment alignment) {
-        this.verticalAlignment = alignment;
-        return this;
-    }
-
-    public ExcelColumn withBorder(ExcelColumnBorder border) {
-        this.border = border;
-        return this;
     }
 
     @Override
