@@ -40,8 +40,8 @@ public class Test {
 //                if (Objects.equals("Sheet2", sheet.getSheetName()))
 //                    read2(sheet); // 通过索引读取列表
                 if (Objects.equals("Sheet3", sheet.getSheetName())) {
-//                    read3(sheet); // 通过表头读取列表
-                    read4(sheet); // 读取为Map格式
+                    read3(sheet); // 通过表头读取列表
+//                    read4(sheet); // 读取为Map格式
                 }
             });
         } catch (Exception e) {

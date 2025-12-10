@@ -23,11 +23,13 @@ public abstract class DateExcelReaderFormatter implements IExcelReaderFormatter<
             return null;
         if (obj instanceof Date)
             return (Date) obj;
-        if (Number.class.isAssignableFrom(obj.getClass()))
-            return new Date(((Number) obj).longValue());
-        if (!(obj instanceof String))
-            throw new RuntimeException("暂不支持当前数据类型");
-        String cellValue = cell.getStringCellValue();
+        String cellValue;
+        if (obj instanceof String)
+            cellValue = cell.getStringCellValue();
+        else if (Number.class.isAssignableFrom(obj.getClass()))
+            cellValue = String.valueOf(((Number)obj).longValue());
+        else
+            throw new RuntimeException("Not support type of " + obj.getClass());
         if (StringUtils.isEmpty(cellValue))
             return null;
         String formatter = formatter(cellValue);

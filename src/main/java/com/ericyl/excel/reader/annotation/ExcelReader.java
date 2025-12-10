@@ -5,7 +5,7 @@ import com.ericyl.excel.reader.formatter.IExcelReaderFormatter;
 
 import java.lang.annotation.*;
 
-@Retention(RetentionPolicy.RUNTIME) // 使注解在运行时可用
+@Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD })
 @Inherited
 public @interface ExcelReader {

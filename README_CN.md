@@ -30,7 +30,7 @@
 
 ```gradle
 dependencies {
-    implementation('com.ericyl.excel:excel-plus:0.1.17')
+    implementation('com.ericyl.excel:excel-plus:0.1.18')
 }
 ```
 
@@ -40,7 +40,7 @@ dependencies {
 <dependency>
     <groupId>com.ericyl.excel</groupId>
     <artifactId>excel-plus</artifactId>
-    <version>0.1.16</version>
+    <version>0.1.18</version>
 </dependency>
 ```
 

@@ -23,7 +23,7 @@ public class Reader3 {
     @ExcelReader(name = {"收入", "合计123"})
     private Double t2;
 
-    @ExcelReader(name = "统计时间", formatter = Reader3DateExcelReaderFormatter.class)
+    @ExcelReader(name = "统计时间")//, formatter = Reader3DateExcelReaderFormatter.class)
     private Date t3;
 
     @ExcelReader(name = "创建时间")
