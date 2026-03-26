@@ -282,45 +282,71 @@ public class ExcelWriterUtils {
      */
     private static void setCell(Workbook workbook, Sheet sheet, List<List<ExcelColumn>> excelColumnList, int rowspan) {
         List<ExcelRegion> excelRegionList = new ArrayList<>();
+        Map<Integer, Set<Integer>> occupiedColumnsByRow = new HashMap<>();
 
         IntStream.range(0, excelColumnList.size()).forEach(index -> {
-            Row row = sheet.createRow(rowspan + index);
+            int rowIndex = rowspan + index;
+            Row row = sheet.getRow(rowIndex);
+            if (row == null)
+                row = sheet.createRow(rowIndex);
 
-            // 计算前面行占用的列数（处理跨行的情况）
-            int parentColspan = IntStream.range(0, index).reduce(0, (acc, item) -> {
-                List<ExcelColumn> excelColumns = excelColumnList.get(item);
-                acc += IntStream.range(0, excelColumns.size()).reduce(0,
-                        (acc1, item1) -> acc1
-                                + ((excelColumns.get(item1).getRowspan() - 1) > 0 ? excelColumns.get(item1).getColspan()
-                                        : 0));
-                return acc;
-            });
-
+            int currentColumnIndex = 0;
             List<ExcelColumn> columnList = excelColumnList.get(index);
-            IntStream.range(0, columnList.size()).forEach(i -> {
-                ExcelColumn excelColumn = columnList.get(i);
-                // 计算当前行前面列占用的宽度
-                int colspan = IntStream.range(0, i).reduce(0,
-                        (acc, item) -> acc + columnList.get(item).getColspan());
+            for (ExcelColumn excelColumn : columnList) {
+                int safeColspan = Math.max(1, excelColumn.getColspan());
+                int safeRowspan = Math.max(1, excelColumn.getRowspan());
+                int columnIndex = findAvailableColumn(occupiedColumnsByRow, rowIndex, currentColumnIndex, safeColspan);
 
-                Cell cell = row.createCell(colspan + parentColspan);
+                Cell cell = row.getCell(columnIndex);
+                if (cell == null)
+                    cell = row.createCell(columnIndex);
                 setCellValue(workbook, cell, excelColumn);
 
+                markOccupiedColumns(occupiedColumnsByRow, rowIndex, columnIndex, safeRowspan, safeColspan);
+
                 // 处理合并单元格
-                if (excelColumn.getColspan() > 1 || excelColumn.getRowspan() > 1) {
+                if (safeColspan > 1 || safeRowspan > 1) {
                     CellRangeAddress region = new CellRangeAddress(
-                            rowspan + index,
-                            rowspan + index + excelColumn.getRowspan() - 1,
-                            parentColspan + colspan,
-                            parentColspan + colspan + excelColumn.getColspan() - 1);
+                            rowIndex,
+                            rowIndex + safeRowspan - 1,
+                            columnIndex,
+                            columnIndex + safeColspan - 1);
                     sheet.addMergedRegion(region);
                     excelRegionList.add(new ExcelRegion(region, excelColumn));
                 }
-            });
+                currentColumnIndex = columnIndex + safeColspan;
+            }
         });
 
         // 设置合并单元格的样式
         excelRegionList.forEach(excelRegion -> setRegionStyle(workbook, sheet, excelRegion.getRegion(), excelRegion.getExcelColumn()));
+    }
+
+    private static int findAvailableColumn(Map<Integer, Set<Integer>> occupiedColumnsByRow,
+            int rowIndex, int startColumn, int colspan) {
+        int columnIndex = startColumn;
+        while (!isColumnRangeAvailable(occupiedColumnsByRow, rowIndex, columnIndex, colspan))
+            columnIndex++;
+        return columnIndex;
+    }
+
+    private static boolean isColumnRangeAvailable(Map<Integer, Set<Integer>> occupiedColumnsByRow,
+            int rowIndex, int startColumn, int colspan) {
+        Set<Integer> occupiedColumns = occupiedColumnsByRow.getOrDefault(rowIndex, Collections.emptySet());
+        for (int columnIndex = startColumn; columnIndex < startColumn + colspan; columnIndex++) {
+            if (occupiedColumns.contains(columnIndex))
+                return false;
+        }
+        return true;
+    }
+
+    private static void markOccupiedColumns(Map<Integer, Set<Integer>> occupiedColumnsByRow,
+            int startRowIndex, int startColumnIndex, int rowspan, int colspan) {
+        for (int rowIndex = startRowIndex; rowIndex < startRowIndex + rowspan; rowIndex++) {
+            Set<Integer> occupiedColumns = occupiedColumnsByRow.computeIfAbsent(rowIndex, key -> new HashSet<>());
+            for (int columnIndex = startColumnIndex; columnIndex < startColumnIndex + colspan; columnIndex++)
+                occupiedColumns.add(columnIndex);
+        }
     }
 
     /**
