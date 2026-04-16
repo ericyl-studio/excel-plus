@@ -518,6 +518,7 @@ public class ExcelWriterUtils {
      */
     private static void setCellStyle(Workbook workbook, Cell cell, ExcelColumn excelColumn) {
         CellStyle cellStyle = workbook.createCellStyle();
+        cellStyle.setWrapText(true);
 
         // 设置边框样式
         ExcelColumnBorder excelColumnBorder = excelColumn.getBorder();
@@ -616,7 +617,7 @@ public class ExcelWriterUtils {
     private static void setCellHeight(Row row, Short height) {
         if (height == null || height <= 0)
             return;
-        row.setHeight(height);
+        row.setHeightInPoints(height);
     }
 
     /**
