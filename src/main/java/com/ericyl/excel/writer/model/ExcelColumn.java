@@ -27,6 +27,7 @@ public class ExcelColumn implements Comparable<ExcelColumn> {
     private VerticalAlignment verticalAlignment;
     private HorizontalAlignment horizontalAlignment;
     private ExcelColumnBorder border;
+    private boolean wrapText;
 
     public ExcelColumn(String key) {
         this(null, key, 1, 1);

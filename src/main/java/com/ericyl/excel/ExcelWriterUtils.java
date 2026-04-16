@@ -481,6 +481,8 @@ public class ExcelWriterUtils {
                 excelColumn.setBorder(excelColumnBorder);
             }
 
+            excelColumn.setWrapText(annotation.wrapText());
+
             return excelColumn;
         }).sorted().collect(Collectors.toList());
     }
@@ -532,7 +534,6 @@ public class ExcelWriterUtils {
      */
     private static void setCellStyle(Workbook workbook, Cell cell, ExcelColumn excelColumn) {
         CellStyle cellStyle = workbook.createCellStyle();
-//        cellStyle.setWrapText(true);
 
         // 设置边框样式
         ExcelColumnBorder excelColumnBorder = excelColumn.getBorder();
@@ -605,6 +606,8 @@ public class ExcelWriterUtils {
         HorizontalAlignment horizontalAlignment = excelColumn.getHorizontalAlignment();
         if (horizontalAlignment != null)
             cellStyle.setAlignment(horizontalAlignment);
+
+        cellStyle.setWrapText(excelColumn.isWrapText());
 
         cell.setCellStyle(cellStyle);
     }

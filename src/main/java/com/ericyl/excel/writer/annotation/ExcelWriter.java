@@ -121,4 +121,10 @@ public @interface ExcelWriter {
      * @return 边框配置，默认为空配置
      */
     ExcelWriterBorder border() default @ExcelWriterBorder;
+
+    /**
+     * 设置文本是否自动换行
+     * @return 文本是否自动换行，默认不换行
+     */
+    boolean wrapText() default false;
 }
