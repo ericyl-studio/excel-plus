@@ -166,7 +166,7 @@ public class ExcelWriterUtils {
             List<ExcelColumn> excelColumnList = getExcelColumns(clazz, list.get(index));
 
             // 设置行高（取最大值）
-            Short height = excelColumnList.stream()
+            Float height = excelColumnList.stream()
                     .map(ExcelColumn::getHeight)
                     .filter(Objects::nonNull)
                     .max(Comparator.naturalOrder())
@@ -228,7 +228,7 @@ public class ExcelWriterUtils {
                 List<ExcelColumn> excelColumnList = getExcelColumns(clazz, list.get(index));
 
                 // 设置行高
-                Short height = excelColumnList.stream()
+                Float height = excelColumnList.stream()
                         .map(ExcelColumn::getHeight)
                         .filter(Objects::nonNull)
                         .max(Comparator.naturalOrder())
@@ -290,12 +290,21 @@ public class ExcelWriterUtils {
             if (row == null)
                 row = sheet.createRow(rowIndex);
 
-            int currentColumnIndex = 0;
             List<ExcelColumn> columnList = excelColumnList.get(index);
+            Float height = columnList.stream()
+                    .map(ExcelColumn::getHeight)
+                    .filter(Objects::nonNull)
+                    .max(Comparator.naturalOrder())
+                    .orElse(null);
+            setCellHeight(row, height);
+
+            int currentColumnIndex = 0;
             for (ExcelColumn excelColumn : columnList) {
                 int safeColspan = Math.max(1, excelColumn.getColspan());
                 int safeRowspan = Math.max(1, excelColumn.getRowspan());
                 int columnIndex = findAvailableColumn(occupiedColumnsByRow, rowIndex, currentColumnIndex, safeColspan);
+
+                setColumnWidth(sheet, columnIndex, safeColspan, excelColumn.getWidth());
 
                 Cell cell = row.getCell(columnIndex);
                 if (cell == null)
@@ -320,6 +329,11 @@ public class ExcelWriterUtils {
 
         // 设置合并单元格的样式
         excelRegionList.forEach(excelRegion -> setRegionStyle(workbook, sheet, excelRegion.getRegion(), excelRegion.getExcelColumn()));
+    }
+
+    private static void setColumnWidth(Sheet sheet, int startColumnIndex, int colspan, Integer width) {
+        for (int columnIndex = startColumnIndex; columnIndex < startColumnIndex + colspan; columnIndex++)
+            setCellWidth(sheet, columnIndex, width);
     }
 
     private static int findAvailableColumn(Map<Integer, Set<Integer>> occupiedColumnsByRow,
@@ -439,7 +453,7 @@ public class ExcelWriterUtils {
             if (cellWidth != -1)
                 excelColumn.setWidth(cellWidth);
 
-            short cellHeight = annotation.height();
+            float cellHeight = annotation.height();
             if (cellHeight != -1)
                 excelColumn.setHeight(cellHeight);
 
@@ -518,7 +532,7 @@ public class ExcelWriterUtils {
      */
     private static void setCellStyle(Workbook workbook, Cell cell, ExcelColumn excelColumn) {
         CellStyle cellStyle = workbook.createCellStyle();
-        cellStyle.setWrapText(true);
+//        cellStyle.setWrapText(true);
 
         // 设置边框样式
         ExcelColumnBorder excelColumnBorder = excelColumn.getBorder();
@@ -614,7 +628,7 @@ public class ExcelWriterUtils {
      * @param row    行
      * @param height 行高
      */
-    private static void setCellHeight(Row row, Short height) {
+    private static void setCellHeight(Row row, Float height) {
         if (height == null || height <= 0)
             return;
         row.setHeightInPoints(height);

@@ -23,7 +23,7 @@ public class ExcelColumn implements Comparable<ExcelColumn> {
     private int colspan;
     private int rowspan;
     private Integer width;
-    private Short height;
+    private Float height;
     private VerticalAlignment verticalAlignment;
     private HorizontalAlignment horizontalAlignment;
     private ExcelColumnBorder border;

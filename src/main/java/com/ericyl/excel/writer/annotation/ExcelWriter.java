@@ -73,13 +73,13 @@ public @interface ExcelWriter {
     /**
      * 行高度
      * <p>
-     * 设置Excel行的高度，单位为点（1/20磅）。
-     * 例如：height = 20 * 15 表示15磅高度。
+     * 设置Excel行的高度，单位为磅。
+     * 例如：height = 15 表示15磅高度。
      * </p>
      * 
      * @return 行高度，默认为-1（使用Excel默认高度）
      */
-    short height() default -1;
+    float height() default -1;
 
     /**
      * 垂直对齐方式
